@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { ChevronsRight } from 'lucide-react';
 import React from 'react';
 
 const HomePage = () => {
@@ -14,7 +15,7 @@ const HomePage = () => {
             className="w-14 h-14 inline-block border-2 border-slate-500/20 shadow-xl shadow-black/60 rounded-full"
           />
         </div>
-        <button className="bg-slate-100 rounded-lg text-slate-800 font-bold py-3 hover:bg-slate-300 transition-colors">
+        <button className="bg-slate-100 rounded-xl text-slate-800 font-bold py-3 hover:bg-slate-300 transition-colors">
           Connect Wallet
         </button>
 
@@ -23,7 +24,7 @@ const HomePage = () => {
           <span>Balance: $0</span>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center">
           <div className="flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-800 rounded-xl">
             <div className="flex w-14 h-14 relative">
               <img
@@ -45,6 +46,10 @@ const HomePage = () => {
                 0.1 ETH
               </span>
             </div>
+          </div>
+
+          <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-700 flex items-center justify-center text-zinc-400 shadow-lg">
+            <ChevronsRight />
           </div>
 
           <div className="flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-800 rounded-xl">
@@ -71,7 +76,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        <button className="bg-slate-100 rounded-lg text-slate-800 font-bold py-3 hover:bg-slate-300 transition-colors">
+        <button className="bg-slate-100 rounded-xl text-slate-800 font-bold py-3 hover:bg-slate-300 transition-colors">
           Continue
         </button>
       </div>
