@@ -8,9 +8,19 @@ export const GlobalStyle: React.FC = () => (
         word-break: keep-all;
       }
 
+      html,
+      body {
+        background: rgb(9 9 11);
+      }
+
       a {
         text-decoration: none;
         cursor: pointer;
+      }
+
+      img {
+        user-select: none;
+        -webkit-user-drag: none;
       }
 
       input,
