@@ -47,7 +47,7 @@ const HomePage = () => {
                 0.1 ETH
               </span>
             </div>
-            <span className="bg-zinc-500 text-zinc-50 text-sm font-semibold inline-block leading-tight absolute right-[-4px] top-[-4px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
+            <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
               Change
             </span>
           </div>
