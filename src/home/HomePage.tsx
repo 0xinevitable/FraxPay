@@ -2,6 +2,8 @@
 import { ChevronDown, ChevronsRight } from 'lucide-react';
 import React from 'react';
 
+import { OnrampCard } from '@/components/OnrampCard';
+
 const HomePage = () => {
   return (
     <div className="bg-zinc-950 h-full">
@@ -78,6 +80,11 @@ const HomePage = () => {
         <button className="bg-slate-100 rounded-xl text-slate-800 font-bold py-3 hover:bg-slate-300 transition-colors">
           Continue
         </button>
+
+        <ul className="flex flex-col gap-2">
+          <OnrampCard src="/assets/stably.png" name="Stably" />
+          <OnrampCard src="/assets/transak.svg" name="Transak" />
+        </ul>
       </div>
     </div>
   );
