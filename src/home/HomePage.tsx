@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { ChevronDown, ChevronsRight } from 'lucide-react';
+import clsx from 'clsx';
+import { ChevronsRight } from 'lucide-react';
 import React from 'react';
 
 import { OnrampCard } from '@/components/OnrampCard';
@@ -10,7 +11,7 @@ const HomePage = () => {
       <div className="bg-zinc-900 container px-7 max-w-lg h-full min-h-screen flex flex-col">
         <span className="text-slate-400">Atelier Haus</span>
         <div className="flex items-end gap-2">
-          <h1 className="text-slate-300 text-6xl font-medium">$50.18 </h1>
+          <h1 className="text-slate-300 text-6xl font-medium">$50.18</h1>
           <img
             src="/assets/frax.png"
             alt=""
@@ -27,7 +28,12 @@ const HomePage = () => {
         </div>
 
         <div className="flex items-center">
-          <div className="flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 hover:bg-zinc-600 rounded-xl relative transition-colors cursor-pointer">
+          <div
+            className={clsx(
+              'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
+              'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
+            )}
+          >
             <TokenLogo
               src={{
                 token: '/assets/eth.png',
@@ -81,7 +87,9 @@ const HomePage = () => {
           Continue
         </button>
 
-        <ul className="flex flex-col gap-2">
+        <h1 className="text-slate-300 text-2xl font-medium">Buy Frax</h1>
+
+        <ul className="flex flex-col gap-2 mt-3">
           <OnrampCard src="/assets/stably.png" name="Stably" />
           <OnrampCard src="/assets/transak.svg" name="Transak" />
         </ul>
