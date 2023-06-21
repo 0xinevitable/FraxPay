@@ -26,18 +26,13 @@ const HomePage = () => {
 
         <div className="flex items-center">
           <div className="flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-800 rounded-xl">
-            <div className="flex w-14 h-14 relative">
-              <img
-                src="/assets/eth.png"
-                alt=""
-                className="w-14 h-14 inline-block border-2 border-slate-500/20 shadow-xl shadow-black/60 rounded-full"
-              />
-              <img
-                src="/assets/optimism.png"
-                alt="Optimism"
-                className="absolute w-5 h-5 right-0 bottom-0 z-2"
-              />
-            </div>
+            <TokenLogo
+              src={{
+                token: '/assets/eth.png',
+                network: '/assets/optimism.png',
+              }}
+              alt={{ token: 'Ethereum', network: 'Optimism' }}
+            />
             <div className="mt-1 flex flex-col items-center gap-0.5">
               <span className="text-slate-400 inline-block leading-tight">
                 Ethereum
@@ -53,18 +48,13 @@ const HomePage = () => {
           </div>
 
           <div className="flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-800 rounded-xl">
-            <div className="flex w-14 h-14 relative">
-              <img
-                src="/assets/frax.png"
-                alt=""
-                className="w-14 h-14 inline-block border-2 border-slate-500/20 shadow-xl shadow-black/60 rounded-full"
-              />
-              <img
-                src="/assets/optimism.png"
-                alt="Optimism"
-                className="absolute w-5 h-5 right-0 bottom-0 z-2"
-              />
-            </div>
+            <TokenLogo
+              src={{
+                token: '/assets/frax.png',
+                network: '/assets/optimism.png',
+              }}
+              alt={{ token: 'Frax', network: 'Optimism' }}
+            />
             <div className="mt-1 flex flex-col items-center gap-0.5">
               <span className="text-slate-400 inline-block leading-tight">
                 Frax
@@ -85,3 +75,30 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+type TokenLogoProps = {
+  src: {
+    token: string;
+    network: string;
+  };
+  alt: {
+    token?: string;
+    network?: string;
+  };
+};
+const TokenLogo: React.FC<TokenLogoProps> = ({ src, alt }) => {
+  return (
+    <div className="flex w-14 h-14 relative">
+      <img
+        src={src.token}
+        alt={alt.token}
+        className="w-14 h-14 inline-block border-2 border-slate-500/20 shadow-xl shadow-black/60 rounded-full"
+      />
+      <img
+        src={src.network}
+        alt={alt.network}
+        className="absolute w-5 h-5 right-0 bottom-0 z-2"
+      />
+    </div>
+  );
+};
