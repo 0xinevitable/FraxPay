@@ -1,15 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import clsx from 'clsx';
-import { ChevronsRight } from 'lucide-react';
-import Image from 'next/image';
 import React from 'react';
-
-// import CoverImage from './cover.png';
 
 const HomePage = () => {
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col items-center pb-8 bg-zinc-950">
+      <div className="relative z-0 flex flex-col items-center pb-8 overflow-hidden bg-zinc-95">
         <div className="mt-[86px] w-[700px] h-[400px] relative z-0 overflow-hidden rounded-3xl shadow-2xl shadow-black">
           <img
             // src={CoverImage}
@@ -24,11 +19,11 @@ const HomePage = () => {
             }}
           />
         </div>
-        <div className="mt-[-132px] z-10 flex flex-col items-center">
-          <span className="text-[28px] text-slate-300">
+        <div className="mt-[-132px] z-10 flex flex-col items-center px-4">
+          <span className="text-[28px] text-slate-300 text-center leading-none">
             Frictionless Stablecoin Payments
           </span>
-          <h1 className="text-5xl font-medium tracking-tight text-center text-zinc-50">
+          <h1 className="mt-3 text-5xl font-medium tracking-tight text-center text-zinc-50">
             <span className="text-zinc-200">with </span>
             <span className="inline-block">
               <span>FraxPay</span>
@@ -39,14 +34,22 @@ const HomePage = () => {
               />
             </span>
           </h1>
-          <button className="mt-4 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px]">
+          <button className="mt-4 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
             Connect Wallet
           </button>
         </div>
+
+        <div
+          className="h-[200px] w-full -z-10 absolute bottom-0 left-0 right-0"
+          style={{
+            background: `linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #1b1b1e 70%)`,
+          }}
+        ></div>
       </div>
-      <div className="flex flex-col items-center justify-center w-full gap-0.5 py-7 bg-black">
-        <p className="w-full text-lg italic text-center text-white">
-          {`"Instant transactions, tangible as cash!"`}
+      <div className="flex flex-col items-center justify-center w-full gap-2 px-4 bg-black py-7">
+        <p className="w-full text-lg italic leading-tight text-center text-white">
+          {`"Instant transactions,`}{' '}
+          <span className="inline-block">{`tangible as cash!"`}</span>
         </p>
         <span className="text-sm text-center text-slate-600">
           Powered by the Frax Ecosystem
