@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
+import { NextPage } from 'next';
 import React from 'react';
 
 import { HeroSection } from './sections/HeroSection';
 
-const HomePage = () => {
+const LandingPage: NextPage = () => {
   return (
     <div className="flex flex-col">
       <HeroSection />
@@ -20,4 +21,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default LandingPage;
