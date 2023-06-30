@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Ghost } from 'lucide-react';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -66,7 +67,9 @@ const CreatePaymentLinkPage: NextPage = () => {
                 onChange={(e) => setPrice(e.target.value)}
               />
             </div>
-            <Button>Create Link</Button>
+            <Link href="/pay">
+              <Button>Create Link</Button>
+            </Link>
           </CardContent>
         </Card>
         <div className="flex-1 p-5 rounded-lg bg-zinc-900">
