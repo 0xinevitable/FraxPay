@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const HomePage: NextPage = () => {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mt-[64px]">
       <div className="container flex flex-col w-full max-w-2xl gap-4 mx-auto mt-8">
         <Card className="relative flex-1 bg-gradient-to-b from-black to-zinc-800/30">
           <CardHeader className="flex flex-row items-center gap-3 pt-3 pb-4">

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 /* eslint-disable @next/next/no-img-element */
 export const HeroSection: React.FC = () => {
   return (
@@ -30,9 +32,11 @@ export const HeroSection: React.FC = () => {
             />
           </span>
         </h1>
-        <button className="mt-4 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
-          Connect Wallet
-        </button>
+        <Link href="/home">
+          <button className="mt-4 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
+            Start Receiving
+          </button>
+        </Link>
       </div>
 
       <div
