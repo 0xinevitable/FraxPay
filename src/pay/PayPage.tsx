@@ -10,14 +10,16 @@ const PayPage: NextPage = () => {
   return (
     <div className="h-full bg-zinc-950">
       <div className="container flex flex-col h-full max-w-lg min-h-screen bg-zinc-900 px-7">
-        <span className="text-slate-400">Atelier Haus</span>
-        <div className="flex items-end gap-2">
-          <h1 className="text-6xl font-medium text-slate-300">$50.18</h1>
-          <img
-            src="/assets/frax.png"
-            alt=""
-            className="inline-block border-2 rounded-full shadow-xl w-14 h-14 border-slate-500/20 shadow-black/60"
-          />
+        <div className="flex flex-col gap-1">
+          <span className="text-slate-400">Atelier Haus</span>
+          <div className="flex items-end gap-2">
+            <h1 className="text-6xl font-medium text-slate-300">$50.18</h1>
+            <img
+              src="/assets/frax.png"
+              alt=""
+              className="inline-block border-2 rounded-full shadow-xl w-14 h-14 border-slate-500/20 shadow-black/60"
+            />
+          </div>
         </div>
         <button className="py-3 font-bold transition-colors bg-slate-100 rounded-xl text-slate-800 hover:bg-slate-300">
           Connect Wallet
