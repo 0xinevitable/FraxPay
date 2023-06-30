@@ -16,7 +16,7 @@ const CreatePaymentLinkPage: NextPage = () => {
   const [price, setPrice] = useState<string>('');
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mt-[64px]">
       <div className="container flex w-full max-w-6xl gap-4 mx-auto mt-8">
         <Card className="relative flex-1 bg-gradient-to-b from-black to-zinc-800/30">
           <CardHeader className="flex flex-row items-center gap-3 pt-3 pb-5">
