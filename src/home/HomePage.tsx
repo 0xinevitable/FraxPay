@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Ghost } from 'lucide-react';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,9 @@ const HomePage: NextPage = () => {
               <p className="text-sm leading-tight text-center text-slate-400">
                 Make a new link to start receiving crypto payments!
               </p>
-              <Button className="mt-2">Create Link</Button>
+              <Link href="/pay/new">
+                <Button className="mt-2">Create Link</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
