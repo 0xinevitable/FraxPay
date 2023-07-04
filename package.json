@@ -4,7 +4,7 @@
   "private": true,
   "repository": "https://github.com/inevitable-dao/FraxPay",
   "author": "Junho Yeo <i@junho.io>",
-  "license": "GPL-3.0-only",
+  "license": "LGPL-3.0",
   "workspaces": [
     "contracts",
     "interface"
