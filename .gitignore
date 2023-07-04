@@ -40,3 +40,8 @@ yarn-error.log*
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
+
+# contracts
+/contracts/cache
+/contracts/artifacts
+/contracts/typechain-types
