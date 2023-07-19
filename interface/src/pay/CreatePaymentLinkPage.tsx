@@ -1,10 +1,12 @@
 /* eslint-disable jsx-a11y/alt-text */
 
 /* eslint-disable @next/next/no-img-element */
-import { NextPage } from 'next';
+import Haikunator from 'haikunator';
+import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import React, { useState } from 'react';
+import title from 'title';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +15,42 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const PRICE_ANIMATION_INCREASE_SPEED = 10;
+const haikunator = new Haikunator({
+  seed: 'custom-seed',
+});
 
-const CreatePaymentLinkPage: NextPage = () => {
-  const [name, setName] = useState<string>('');
+type Props = {
+  randomDefaultName: string;
+};
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const randomDefaultName = title(
+    haikunator.haikunate({
+      tokenLength: 0,
+      delimiter: ' ',
+    }),
+  );
+
+  return {
+    props: {
+      randomDefaultName,
+    },
+  };
+};
+
+const CreatePaymentLinkPage: NextPage<Props> = (props) => {
+  const [name, setName] = useState<string>(props.randomDefaultName);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const [price, setPrice] = useState<string>('');
   const currentAnimationPriceRef = useRef<number>(0);
   const [priceDisplay, setPriceDisplay] = useState<string>('');
+
+  useEffect(() => {
+    if (!nameInputRef.current) {
+      return;
+    }
+    nameInputRef.current.select();
+  }, []);
 
   useEffect(() => {
     // Modified from https://codepen.io/duvander/pen/KXOpXw
@@ -59,6 +91,7 @@ const CreatePaymentLinkPage: NextPage = () => {
                 Name
               </Label>
               <Input
+                ref={nameInputRef}
                 className="text-2xl h-14"
                 value={name}
                 onChange={(e) => setName(e.target.value)}

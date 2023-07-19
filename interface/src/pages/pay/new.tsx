@@ -1,1 +1,1 @@
-export { default } from '@/pay/CreatePaymentLinkPage';
+export { default, getServerSideProps } from '@/pay/CreatePaymentLinkPage';
