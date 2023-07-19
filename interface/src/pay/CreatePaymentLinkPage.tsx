@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,32 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+const PRICE_ANIMATION_INCREASE_SPEED = 10;
+
 const CreatePaymentLinkPage: NextPage = () => {
   const [name, setName] = useState<string>('');
   const [price, setPrice] = useState<string>('');
+  const currentAnimationPriceRef = useRef<number>(0);
+  const [priceDisplay, setPriceDisplay] = useState<string>('');
+
+  useEffect(() => {
+    // Modified from https://codepen.io/duvander/pen/KXOpXw
+    const incNbrRec = (i: number, endNbr: number) => {
+      if (i <= endNbr) {
+        if (currentAnimationPriceRef.current !== endNbr) {
+          return;
+        }
+        setPriceDisplay(i.toLocaleString());
+        setTimeout(() => {
+          incNbrRec(i + 1, endNbr);
+        }, PRICE_ANIMATION_INCREASE_SPEED);
+      }
+    };
+
+    setPriceDisplay('0');
+    currentAnimationPriceRef.current = Number(price);
+    incNbrRec(0, Number(price));
+  }, [price]);
 
   return (
     <div className="flex flex-col mt-[64px]">
@@ -76,7 +100,7 @@ const CreatePaymentLinkPage: NextPage = () => {
             <span className="text-slate-400">{name || '-'}</span>
             <div className="flex items-end gap-2">
               <h1 className="text-6xl font-medium text-slate-300">{`$${
-                price || '-'
+                priceDisplay || '-'
               }`}</h1>
               <img
                 src="/assets/frax.png"
