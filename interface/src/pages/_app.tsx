@@ -1,5 +1,6 @@
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
+import { useRouter } from 'next/router';
 import React from 'react';
 
 import { GlobalStyle } from '@/components/GlobalStyle';
@@ -11,13 +12,15 @@ const lexend = localFont({
   variable: '--font-lexend',
 });
 
-function MyApp({ Component, pageProps }: AppProps) {
+const App: React.FC<AppProps> = ({ Component, pageProps }) => {
+  const router = useRouter();
+
   return (
     <React.Fragment>
       {/* @ts-ignore // Type mismatch after upgrading to React 18 */}
       <GlobalStyle />
 
-      <NavigationBar />
+      {router.route !== '/pay/[paymentRequestID]' && <NavigationBar />}
       <Component {...pageProps} />
 
       <div id="portal" />
@@ -28,6 +31,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       `}</style>
     </React.Fragment>
   );
-}
+};
 
-export default MyApp;
+export default App;
