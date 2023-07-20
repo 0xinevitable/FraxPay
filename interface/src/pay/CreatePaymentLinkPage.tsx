@@ -43,6 +43,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
 
   const [price, setPrice] = useState<string>('');
   const currentAnimationPriceRef = useRef<number>(0);
+  const currentAnimationTargetRef = useRef<number>(0);
   const [priceDisplay, setPriceDisplay] = useState<string>('');
 
   useEffect(() => {
@@ -55,10 +56,14 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   useEffect(() => {
     let start = Number(currentAnimationPriceRef.current);
     const end = Number(price);
+    currentAnimationTargetRef.current = end;
     const startTimestamp = performance.now();
 
     const fractionDigits = (price.split('.')[1] || '').length;
     const step = (timestamp: number) => {
+      if (currentAnimationTargetRef.current !== end) {
+        return;
+      }
       const progress = Math.min(
         (timestamp - startTimestamp) / PRICE_ANIMATION_DURATION,
         1,
