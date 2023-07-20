@@ -17,6 +17,27 @@ const LandingPage: NextPage = () => {
           Powered by the Frax Ecosystem
         </span>
       </div>
+
+      <section className="w-full max-w-6xl px-6 py-20 mx-auto">
+        <span className="text-xl font-medium text-slate-400">
+          For Merchants and Creators
+        </span>
+        <h2 className="mt-2 text-5xl font-medium leading-[1.18] text-zinc-50">
+          Accept Frax Stablecoins <br />
+          with Ease
+        </h2>
+      </section>
+
+      <section className="w-full max-w-6xl px-6 py-20 mx-auto">
+        <span className="text-xl font-medium text-slate-400">
+          Simplify Payments with Instant Payment Links
+        </span>
+        <h2 className="mt-2 text-5xl font-medium leading-[1.18] text-zinc-50">
+          Generate <br />
+          Payment Links <br />
+          in Seconds
+        </h2>
+      </section>
     </div>
   );
 };

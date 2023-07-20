@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const HeroSection: React.FC = () => {
   return (
     <div className="relative z-0 flex flex-col items-center pb-8 overflow-hidden bg-zinc-95">
-      <div className="mt-[86px] w-[700px] h-[400px] relative z-0 overflow-hidden rounded-3xl shadow-2xl shadow-black">
+      <div className="mt-[90px] w-[700px] h-[400px] relative z-0 overflow-hidden rounded-3xl shadow-2xl shadow-black">
         <img
           src="/assets/cover.png"
           alt=""
@@ -17,23 +17,23 @@ export const HeroSection: React.FC = () => {
           }}
         />
       </div>
-      <div className="mt-[-132px] z-10 flex flex-col items-center px-4">
+      <div className="mt-[-140px] z-10 flex flex-col items-center px-4">
         <span className="text-[28px] text-slate-300 text-center leading-none">
           Frictionless Stablecoin Payments
         </span>
-        <h1 className="mt-3 text-5xl font-medium tracking-tight text-center text-zinc-50">
+        <h1 className="mt-3 text-5xl font-medium tracking-tight text-center sm:text-6xl text-zinc-50">
           <span className="text-zinc-200">with </span>
           <span className="inline-block">
             <span>FraxPay</span>
             <img
               src="/assets/frax.png"
               alt=""
-              className="ml-1.5 inline-block w-12 h-12 mb-[-4px] align-bottom border-2 rounded-full shadow-xl border-slate-500/20 shadow-black/60"
+              className="ml-1.5 inline-block w-14 h-14 sm:w-16 sm:h-16 mb-[-4px] align-bottom border-2 rounded-full shadow-xl border-slate-500/20 shadow-black/60"
             />
           </span>
         </h1>
         <Link href="/home">
-          <button className="mt-4 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
+          <button className="mt-6 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
             Start Receiving
           </button>
         </Link>
