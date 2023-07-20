@@ -2,13 +2,21 @@
 import clsx from 'clsx';
 import { ChevronsRight, CircleDashed } from 'lucide-react';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import React from 'react';
-import { MetaMaskAvatar } from 'react-metamask-avatar';
 
 import { OnrampCard } from '@/components/OnrampCard';
 import { ProductCard } from '@/components/ProductCard';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+
+const MetaMaskAvatar = dynamic(
+  () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
+  {
+    ssr: false,
+    loading: () => <div />,
+  },
+);
 
 const PayPage: NextPage = () => {
   return (
@@ -30,20 +38,13 @@ const PayPage: NextPage = () => {
           </button>
 
           <CircleDashed className="mx-auto text-slate-200" size={48} />
-          <h2 className="mt-2 text-2xl font-medium leading-relaxed text-center text-slate-200">
+          <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
             Wallet{' '}
-            <span className="pl-1 pr-3 gap-1.5 py-1.5 text-1xl leading-none bg-zinc-800 border rounded-3xl border-zinc-600/50 shadow-lg shadow-zinc-950 items-center align-sub inline-flex">
-              {/* <TokenLogo
-                className="inline-flex -my-2 align-middle w-7 h-7"
-                src={{
-                  token: '/assets/frax.png',
-                }}
-                alt={{ token: 'Frax' }}
-              /> */}
-              <div className="inline-flex items-center justify-center -my-2 align-middle border-2 rounded-full w-7 h-7 border-slate-500/20">
+            <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
+              <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
                 <MetaMaskAvatar
                   address="0x7777777141f111cf9f0308a63dbd9d0cad3010c4"
-                  size={24}
+                  size={28}
                 />
               </div>
               <span>0x7777</span>
@@ -52,13 +53,13 @@ const PayPage: NextPage = () => {
             do not have <br />
             enough{' '}
             <span
-              className="pl-1 pr-3 gap-1.5 py-1.5 text-1xl leading-none bg-slate-950 border rounded-3xl border-zinc-800/60 shadow-lg shadow-zinc-950 items-center align-sub inline-flex"
+              className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
               style={{
                 background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
               }}
             >
               <TokenLogo
-                className="inline-flex -my-2 align-middle w-7 h-7"
+                className="inline-flex w-8 h-8 -my-3 align-middle"
                 src={{
                   token: '/assets/frax.png',
                 }}
