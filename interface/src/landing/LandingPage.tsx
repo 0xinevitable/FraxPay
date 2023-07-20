@@ -2,9 +2,13 @@
 import { NextPage } from 'next';
 import React from 'react';
 
+import { PaymentLinkPreviewCard } from '@/components/PaymentLinkPreviewCard';
+
 import { HeroSection } from './sections/HeroSection';
 
 const LandingPage: NextPage = () => {
+  const priceDisplay = '60';
+
   return (
     <div className="flex flex-col">
       <HeroSection />
@@ -37,6 +41,19 @@ const LandingPage: NextPage = () => {
           Payment Links <br />
           in Seconds
         </h2>
+
+        <div className="flex justify-center w-full">
+          <div className="relative w-full max-w-sm h-fit">
+            <PaymentLinkPreviewCard
+              name={'Test Artifact - .ERA .Max 002'}
+              description="TEST ARTIFACT ™. Experimental brand in Seoul."
+              priceDisplay={priceDisplay}
+              imageURL="/assets/eva-max-002.jpg"
+              imageRatio={1 / 1}
+            />
+            <div className="absolute bottom-0 left-0 right-0  bg-gradient-to-b from-[rgba(9,9,11,0)] to-[#09090B] h-[100px]" />
+          </div>
+        </div>
       </section>
     </div>
   );
