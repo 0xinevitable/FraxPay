@@ -1,13 +1,78 @@
 /* eslint-disable @next/next/no-img-element */
 import { NextPage } from 'next';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { PaymentLinkPreviewCard } from '@/components/PaymentLinkPreviewCard';
 
 import { HeroSection } from './sections/HeroSection';
 
+const PRICE_ANIMATION_DURATION = 1_000;
+const ANIMATED_PRICE_DISPLAY_VALUES = [
+  '60',
+  '63.2',
+  '112.04',
+  '58.99',
+  '138.2',
+  '60.1',
+  '63.99',
+];
+
 const LandingPage: NextPage = () => {
-  const priceDisplay = '60';
+  const [price, setPrice] = useState<string>(ANIMATED_PRICE_DISPLAY_VALUES[0]);
+  const [priceDisplay, setPriceDisplay] = useState<string>(
+    ANIMATED_PRICE_DISPLAY_VALUES[0],
+  );
+  const currentAnimationPriceRef = useRef<number>(0);
+  const currentAnimationTargetRef = useRef<number>(0);
+
+  // FIXME: Duplicated code w/ CreatePaymentLinkPage
+  useEffect(() => {
+    let start = Number(currentAnimationPriceRef.current);
+    const end = Number(price);
+    currentAnimationTargetRef.current = end;
+    const startTimestamp = performance.now();
+
+    const fractionDigits = (price.split('.')[1] || '').length;
+    const step = (timestamp: number) => {
+      if (currentAnimationTargetRef.current !== end) {
+        return;
+      }
+      const progress = Math.min(
+        (timestamp - startTimestamp) / PRICE_ANIMATION_DURATION,
+        1,
+      );
+      const current = start + (end - start) * progress;
+
+      setPriceDisplay(
+        current.toLocaleString('en-US', {
+          minimumFractionDigits: fractionDigits,
+          maximumFractionDigits: fractionDigits,
+        }),
+      );
+
+      if (current !== end) {
+        window.requestAnimationFrame(step);
+      } else {
+        currentAnimationPriceRef.current = Number(price);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  }, [price]);
+
+  // change price every 3 seconds
+  useEffect(() => {
+    const callback = () =>
+      setPrice((prev) => {
+        const index = ANIMATED_PRICE_DISPLAY_VALUES.indexOf(prev);
+        return ANIMATED_PRICE_DISPLAY_VALUES[
+          (index + 1) % ANIMATED_PRICE_DISPLAY_VALUES.length
+        ];
+      });
+
+    const interval = setInterval(callback, 2_000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -27,7 +92,8 @@ const LandingPage: NextPage = () => {
           For Merchants and Creators
         </span>
         <h2 className="mt-2 text-5xl font-medium leading-[1.18] text-zinc-50">
-          Accept Frax Stablecoins <br />
+          Accept <br />
+          Frax Stablecoins <br />
           with Ease
         </h2>
       </section>
@@ -45,8 +111,8 @@ const LandingPage: NextPage = () => {
         <div className="flex justify-center w-full">
           <div className="relative w-full max-w-sm h-fit">
             <PaymentLinkPreviewCard
-              name={'Test Artifact - .ERA .Max 002'}
-              description="TEST ARTIFACT ™. Experimental brand in Seoul."
+              name={'Test Artifact — .ERA .Max 002'}
+              description="TEST ARTIFACT ™ — Experimental brand in Seoul."
               priceDisplay={priceDisplay}
               imageURL="/assets/eva-max-002.jpg"
               imageRatio={1 / 1}
