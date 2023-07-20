@@ -77,27 +77,23 @@ const PayPage: NextPage = () => {
 
           <Separator className="my-8" />
 
-          <Accordion type="single" collapsible>
+          <Accordion type="single" collapsible defaultValue="swap-to-frax">
             <AccordionItem value="switch-wallet">
               <AccordionTrigger>
                 <h3 className="text-2xl font-medium text-slate-300">
                   Switch Wallet
                 </h3>
               </AccordionTrigger>
-              <AccordionContent className="flex flex-col w-full">
-                MetaMask?
-              </AccordionContent>
+              <AccordionContent>MetaMask?</AccordionContent>
             </AccordionItem>
-          </Accordion>
 
-          <Accordion type="single" collapsible>
             <AccordionItem value="swap-to-frax">
               <AccordionTrigger>
                 <h3 className="text-2xl font-medium text-slate-300">
                   Swap to Frax
                 </h3>
               </AccordionTrigger>
-              <AccordionContent className="flex flex-col w-full">
+              <AccordionContent>
                 {/* <div className="flex flex-col">
                   <span>Optimism</span>
                   <span>Balance: $0</span>
@@ -164,16 +160,14 @@ const PayPage: NextPage = () => {
                 </button>
               </AccordionContent>
             </AccordionItem>
-          </Accordion>
 
-          <Accordion type="single" collapsible>
             <AccordionItem value="onramp-to-frax">
               <AccordionTrigger>
                 <h3 className="text-2xl font-medium text-slate-300">
                   Onramp to Frax
                 </h3>
               </AccordionTrigger>
-              <AccordionContent className="flex flex-col w-full">
+              <AccordionContent>
                 <ul className="flex flex-col gap-2 mt-3">
                   <OnrampCard src="/assets/stably.png" name="Stably" />
                   <OnrampCard src="/assets/transak.svg" name="Transak" />
