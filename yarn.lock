@@ -2908,6 +2908,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/title@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "@types/title@npm:3.4.1"
+  checksum: 9f0d044344937adf304fe8d4a23b2de2968861d07845369841e07db4a412bb716592609f8909acb778a0fb216316beed2699ad173a8bef6a8066a4983f021f04
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/parser@npm:^5.42.0":
   version: 5.43.0
   resolution: "@typescript-eslint/parser@npm:5.43.0"
@@ -7113,6 +7120,7 @@ __metadata:
     "@types/node": ^20.2.5
     "@types/react": ^18.2.7
     "@types/react-dom": ^18.2.4
+    "@types/title": ^3.4.1
     autoprefixer: ^10.4.14
     class-variance-authority: ^0.6.1
     clsx: ^1.2.1
