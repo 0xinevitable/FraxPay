@@ -18,7 +18,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   imageURL,
   imageRatio = 16 / 9,
 }) => (
-  <div className="flex-1 overflow-hidden rounded-lg bg-zinc-900">
+  <div className="flex-1 overflow-hidden rounded-xl bg-zinc-900">
     <div className="w-full">
       <AspectRatio ratio={imageRatio} className="relative bg-black">
         <img

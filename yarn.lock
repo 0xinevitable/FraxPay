@@ -7136,6 +7136,7 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     react-is: ^18.2.0
+    react-metamask-avatar: ^1.2.1
     tailwind-merge: ^1.13.2
     tailwindcss: ^3.3.2
     tailwindcss-animate: ^1.0.6
@@ -9792,6 +9793,16 @@ __metadata:
   version: 18.2.0
   resolution: "react-is@npm:18.2.0"
   checksum: e72d0ba81b5922759e4aff17e0252bd29988f9642ed817f56b25a3e217e13eea8a7f2322af99a06edb779da12d5d636e9fda473d620df9a3da0df2a74141d53e
+  languageName: node
+  linkType: hard
+
+"react-metamask-avatar@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "react-metamask-avatar@npm:1.2.1"
+  peerDependencies:
+    react: 17.0.2
+    react-dom: 17.0.2
+  checksum: a86a4e879f180a1d71b8d5439da2997a98ef280e01535e7daddffbecde4fde884908e051b9c3af9afcd9a0fe1ca0f37f84e51427bc6236003bd7524f3b2ce835
   languageName: node
   linkType: hard
 

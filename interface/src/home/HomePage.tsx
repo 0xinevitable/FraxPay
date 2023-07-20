@@ -25,7 +25,7 @@ const HomePage: NextPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center gap-2 px-6 py-10 rounded-lg shadow-2xl bg-zinc-900 shadow-zinc-950/40">
+            <div className="flex flex-col items-center gap-2 px-6 py-10 rounded-xl shadow-2xl bg-zinc-900 shadow-zinc-950/40">
               <Ghost className="text-slate-50" size={36} />
               <h4 className="mt-2 text-xl font-semibold leading-tight text-center text-slate-50">
                 List Empty

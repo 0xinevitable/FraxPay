@@ -33,7 +33,7 @@ export const HeroSection: React.FC = () => {
           </span>
         </h1>
         <Link href="/home">
-          <button className="mt-6 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-lg h-[52px] shadow-lg shadow-white/40">
+          <button className="mt-6 bg-white hover:bg-slate-200 transition-colors font-semibold tracking-tight w-[180px] rounded-xl h-[52px] shadow-lg shadow-white/40">
             Start Receiving
           </button>
         </Link>
