@@ -4,7 +4,7 @@
 import Haikunator from 'haikunator';
 import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 import title from 'title';
 
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const PRICE_ANIMATION_INCREASE_SPEED = 10;
+const PRICE_ANIMATION_DURATION = 1_000;
 const haikunator = new Haikunator({
   seed: 'custom-seed',
 });
@@ -53,23 +53,44 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   }, []);
 
   useEffect(() => {
-    // Modified from https://codepen.io/duvander/pen/KXOpXw
-    const incNbrRec = (i: number, endNbr: number) => {
-      if (i <= endNbr) {
-        if (currentAnimationPriceRef.current !== endNbr) {
-          return;
-        }
-        setPriceDisplay(i.toLocaleString());
-        setTimeout(() => {
-          incNbrRec(i + 1, endNbr);
-        }, PRICE_ANIMATION_INCREASE_SPEED);
+    let start = Number(currentAnimationPriceRef.current);
+    const end = Number(price);
+    const startTimestamp = performance.now();
+
+    const fractionDigits = (price.split('.')[1] || '').length;
+    const step = (timestamp: number) => {
+      const progress = Math.min(
+        (timestamp - startTimestamp) / PRICE_ANIMATION_DURATION,
+        1,
+      );
+      const current = start + (end - start) * progress;
+
+      setPriceDisplay(
+        current.toLocaleString('en-US', {
+          minimumFractionDigits: fractionDigits,
+          maximumFractionDigits: fractionDigits,
+        }),
+      );
+
+      if (current !== end) {
+        window.requestAnimationFrame(step);
+      } else {
+        currentAnimationPriceRef.current = Number(price);
       }
     };
 
-    setPriceDisplay('0');
-    currentAnimationPriceRef.current = Number(price);
-    incNbrRec(0, Number(price));
+    window.requestAnimationFrame(step);
   }, [price]);
+
+  const onChangePrice = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value;
+      const strippedValue = inputValue.replace(/[^0-9.,]/g, '');
+
+      setPrice(strippedValue);
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col mt-[64px]">
@@ -120,7 +141,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
               <Input
                 className="text-2xl h-14"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={onChangePrice}
               />
             </div>
             <Link href="/pay">
