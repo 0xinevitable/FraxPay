@@ -2,7 +2,7 @@
 import { NextPage } from 'next';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { PaymentLinkPreviewCard } from '@/components/PaymentLinkPreviewCard';
+import { ProductCard } from '@/components/ProductCard';
 
 import { HeroSection } from './sections/HeroSection';
 
@@ -110,7 +110,7 @@ const LandingPage: NextPage = () => {
 
         <div className="flex justify-center w-full">
           <div className="relative w-full max-w-sm h-fit">
-            <PaymentLinkPreviewCard
+            <ProductCard
               name={'Test Artifact — .ERA .Max 002'}
               description="TEST ARTIFACT ™ — Experimental brand in Seoul."
               priceDisplay={priceDisplay}

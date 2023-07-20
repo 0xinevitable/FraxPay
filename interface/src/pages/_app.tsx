@@ -17,7 +17,6 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <React.Fragment>
-      {/* @ts-ignore // Type mismatch after upgrading to React 18 */}
       <GlobalStyle />
 
       {router.route !== '/pay/[paymentRequestID]' && <NavigationBar />}

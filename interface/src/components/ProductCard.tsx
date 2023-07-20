@@ -3,7 +3,7 @@ import { Separator } from '@/components/ui/separator';
 
 import { AspectRatio } from './ui/aspect-ratio';
 
-type PaymentLinkPreviewCardProps = {
+type ProductCardProps = {
   name: string;
   description?: string;
   priceDisplay: string;
@@ -11,7 +11,7 @@ type PaymentLinkPreviewCardProps = {
   imageRatio?: number;
 };
 
-export const PaymentLinkPreviewCard: React.FC<PaymentLinkPreviewCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = ({
   name,
   description,
   priceDisplay,

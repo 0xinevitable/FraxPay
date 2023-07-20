@@ -8,13 +8,11 @@ import { useCallback, useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 import title from 'title';
 
-import { PaymentLinkPreviewCard } from '@/components/PaymentLinkPreviewCard';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const PRICE_ANIMATION_DURATION = 1_000;
@@ -158,7 +156,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
           </CardContent>
         </Card>
 
-        <PaymentLinkPreviewCard
+        <ProductCard
           name={name}
           priceDisplay={priceDisplay}
           imageURL="/assets/package.jpg"
