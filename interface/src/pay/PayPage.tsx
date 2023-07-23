@@ -1,10 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 import clsx from 'clsx';
-import { ChevronsRight, CircleDashed } from 'lucide-react';
+import {
+  ChevronsRight,
+  Chrome,
+  CircleDashed,
+  Loader,
+  Loader2,
+} from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import React from 'react';
+import React, { useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
+import { NoSSR } from '@/components/NoSSR';
 import { OnrampCard } from '@/components/OnrampCard';
 import { ProductCard } from '@/components/ProductCard';
 import {
@@ -13,8 +21,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import CountrySelector, {
+  SelectMenuOption,
+} from '@/components/ui/country-input';
+import { Input, InputWithLabel } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
+import { wagmiConnectors } from '@/lib/web3';
 
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
@@ -24,7 +39,38 @@ const MetaMaskAvatar = dynamic(
   },
 );
 
+const getNameByConnectorIdentifier = (
+  connectorIdentifier: string,
+  connectorName?: string,
+) => {
+  connectorIdentifier = connectorIdentifier.toLowerCase();
+  if (connectorIdentifier === 'injected') {
+    if (!!connectorName) {
+      return `Injected (${connectorName})`;
+    }
+    return 'Injected';
+  }
+  if (connectorIdentifier === 'metamask') {
+    return 'MetaMask';
+  }
+  if (connectorIdentifier === 'coinbasewallet') {
+    return 'Coinbase Wallet';
+  }
+  return 'Unknown';
+};
+
+const HAS_INSUFFICIENT_FUNDS = true;
+
 const PayPage: NextPage = () => {
+  const { connector: activeConnector, isConnected, address } = useAccount();
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
+  const { disconnect } = useDisconnect();
+
+  const [isOpen, setIsOpen] = useState(false);
+  // Default this to a country's code to preselect it
+  const [country, setCountry] = useState<SelectMenuOption['value']>('BE');
+
   return (
     <div className="h-full bg-zinc-950">
       <div className="container flex h-full max-w-5xl min-h-screen gap-8 py-[64px] mx-auto px-7">
@@ -38,143 +84,285 @@ const PayPage: NextPage = () => {
           />
         </div>
 
-        <div className="flex flex-col flex-1 px-6 py-6 rounded-xl bg-zinc-900">
-          <button className="py-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
-            Connect Wallet
-          </button>
+        <div className="relative flex flex-col flex-1 rounded-xl bg-zinc-900 h-fit">
+          <NoSSR>
+            {!isConnected && (
+              <div className="flex flex-col w-full h-full px-6 py-6">
+                <h2 className="mb-4 text-2xl font-medium leading-snug text-left text-slate-200">
+                  <span className="w-[24px] min-w-[24px] inline-flex mr-2 text-xl items-center justify-center h-[24px] text-zinc-400 bg-zinc-700 rounded-full">
+                    1
+                  </span>
+                  Shipping Information
+                </h2>
 
-          <CircleDashed className="mx-auto text-slate-200" size={48} />
-          <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
-            Wallet{' '}
-            <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
-              <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
-                <MetaMaskAvatar
-                  address="0x7777777141f111cf9f0308a63dbd9d0cad3010c4"
-                  size={28}
-                />
+                <div className="grid w-full grid-cols-2 gap-2">
+                  <InputWithLabel id="name" label="Name" required />
+                  <InputWithLabel
+                    id="email"
+                    type="email"
+                    label="Email"
+                    required
+                  />
+                </div>
+                <div className="grid w-full grid-cols-2 gap-2">
+                  <div className="flex-1">
+                    <InputWithLabel id="address" label="City" />
+                  </div>
+                  <div className="flex flex-col flex-1 gap-1">
+                    <Label className="mt-2 font-medium text-zinc-400">
+                      Country
+                    </Label>
+                    <CountrySelector
+                      className="w-full"
+                      id={'country-selector'}
+                      open={isOpen}
+                      onToggle={() => setIsOpen(!isOpen)}
+                      onChange={setCountry}
+                      selectedValue={COUNTRIES.find(
+                        (option) => option.value === country,
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col flex-1 gap-1">
+                  <Label className="mt-2 font-medium text-zinc-400">
+                    Address
+                  </Label>
+                  <div className="z-0 flex flex-col">
+                    <Input
+                      id="address"
+                      placeholder="Street Address"
+                      className="rounded-b-none focus:z-10"
+                    />
+                    <Input
+                      id="zip"
+                      placeholder="ZIP/Postal Code"
+                      className="mt-[-1px] rounded-t-none focus:z-10"
+                    />
+                  </div>
+                </div>
+
+                {/* divider */}
+                <div className="flex flex-col items-center my-6">
+                  <div className="w-[2px] h-[42px] bg-zinc-600 rounded-sm" />
+                </div>
+
+                <h2 className="mb-4 text-2xl font-medium leading-snug text-left text-slate-200">
+                  <span className="w-[24px] min-w-[24px] inline-flex mr-2 text-xl items-center justify-center h-[24px] text-zinc-400 bg-zinc-700 rounded-full">
+                    2
+                  </span>
+                  Connect Wallet
+                </h2>
+
+                <div className="grid w-full grid-cols-2 gap-2">
+                  {Object.entries(wagmiConnectors).map(
+                    ([connectorIdentifier, connector]) => (
+                      <button
+                        disabled={!connector.ready}
+                        className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75"
+                        key={connector.id}
+                        onClick={() => connect({ connector })}
+                      >
+                        {connectorIdentifier === 'injected' && (
+                          <span className="w-[48px] min-w-[48px]">
+                            <Chrome className="text-slate-300" size={48} />
+                          </span>
+                        )}
+                        {connectorIdentifier === 'metamask' && (
+                          <img
+                            alt="MetaMask"
+                            src="/assets/connectors/metamask.svg"
+                            className="w-[48px] h-[48px]"
+                          />
+                        )}
+                        {connectorIdentifier === 'coinbase' && (
+                          <img
+                            alt="Coinbase Wallet"
+                            src="/assets/connectors/coinbase.svg"
+                            className="w-[48px] h-[48px]"
+                          />
+                        )}
+                        <div className="flex flex-col h-full justify-center flex-1 gap-1 ml-2 max-w-[calc(100%-52px)]">
+                          <span className="block w-full text-left truncate transition-colors text-zinc-300 group-hover:text-white">
+                            {getNameByConnectorIdentifier(
+                              connector.id,
+                              connector.name,
+                            )}
+                          </span>
+                          {isLoading &&
+                            pendingConnector?.id === connector.id && (
+                              <span className="inline-flex items-center w-full gap-1 text-left text-slate-400">
+                                <Loader2
+                                  className="animate-spin text-slate-400"
+                                  size={16}
+                                />
+                                Connecting
+                              </span>
+                            )}
+                        </div>
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                <button className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                  Continue
+                </button>
               </div>
-              <span>0x7777</span>
-            </span>{' '}
-            <br />
-            do not have <br />
-            enough{' '}
-            <span
-              className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
-              style={{
-                background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
-              }}
-            >
-              <TokenLogo
-                className="inline-flex w-8 h-8 -my-3 align-middle"
-                src={{
-                  token: '/assets/frax.png',
-                }}
-                alt={{ token: 'Frax' }}
-              />
-              <span>FRAX</span>
-            </span>
-          </h2>
+            )}
 
-          <Separator className="my-8" />
+            {isConnected && HAS_INSUFFICIENT_FUNDS && (
+              <>
+                <button
+                  className="absolute px-2 border rounded-md top-4 right-4 bg-zinc-800 border-zinc-700 text-zinc-500"
+                  onClick={() => disconnect()}
+                >
+                  Disconnect
+                </button>
+                <div className="flex flex-col w-full h-full py-6">
+                  <CircleDashed className="mx-auto text-slate-200" size={48} />
+                  <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
+                    Wallet{' '}
+                    <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
+                      <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
+                        <MetaMaskAvatar address={address} size={28} />
+                      </div>
+                      <span>{address.slice(0, 6)}</span>
+                    </span>{' '}
+                    <br />
+                    do not have <br />
+                    enough{' '}
+                    <span
+                      className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
+                      style={{
+                        background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
+                      }}
+                    >
+                      <TokenLogo
+                        className="inline-flex w-8 h-8 -my-3 align-middle"
+                        src={{
+                          token: '/assets/frax.png',
+                        }}
+                        alt={{ token: 'Frax' }}
+                      />
+                      <span>FRAX</span>
+                    </span>
+                  </h2>
 
-          <Accordion type="single" collapsible defaultValue="swap-to-frax">
-            <AccordionItem value="switch-wallet">
-              <AccordionTrigger>
-                <h3 className="text-2xl font-medium text-slate-300">
-                  Switch Wallet
-                </h3>
-              </AccordionTrigger>
-              <AccordionContent>MetaMask?</AccordionContent>
-            </AccordionItem>
+                  <Separator className="my-8" />
 
-            <AccordionItem value="swap-to-frax">
-              <AccordionTrigger>
-                <h3 className="text-2xl font-medium text-slate-300">
-                  Swap to Frax
-                </h3>
-              </AccordionTrigger>
-              <AccordionContent>
-                {/* <div className="flex flex-col">
+                  <Accordion
+                    type="single"
+                    collapsible
+                    defaultValue="swap-to-frax"
+                  >
+                    {/* <AccordionItem value="switch-wallet">
+                      <AccordionTrigger className="px-6 py-3">
+                        <h3 className="text-[20px] font-medium text-slate-300">
+                          Switch Wallet
+                        </h3>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
+                        MetaMask?
+                      </AccordionContent>
+                    </AccordionItem> */}
+
+                    <AccordionItem value="swap-to-frax">
+                      <AccordionTrigger className="px-6 py-3">
+                        <h3 className="text-[20px] font-medium text-slate-300">
+                          Swap to Frax
+                        </h3>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
+                        {/* <div className="flex flex-col">
                   <span>Optimism</span>
                   <span>Balance: $0</span>
                 </div> */}
 
-                <div className="flex items-center mt-3">
-                  <div
-                    className={clsx(
-                      'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
-                      'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
-                    )}
-                  >
-                    <TokenLogo
-                      src={{
-                        token: '/assets/eth.png',
-                        network: '/assets/optimism.png',
-                      }}
-                      alt={{ token: 'Ethereum', network: 'Optimism' }}
-                    />
-                    <div className="mt-1 flex flex-col items-center gap-0.5">
-                      {/* <button className="z-20 flex items-center gap-1 px-2 py-1 transition-colors shadow-xl rounded-xl bg-zinc-700 hover:bg-zinc-600 shadow-black/40">
+                        <div className="flex items-center mt-3">
+                          <div
+                            className={clsx(
+                              'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
+                              'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
+                            )}
+                          >
+                            <TokenLogo
+                              src={{
+                                token: '/assets/eth.png',
+                                network: '/assets/optimism.png',
+                              }}
+                              alt={{ token: 'Ethereum', network: 'Optimism' }}
+                            />
+                            <div className="mt-1 flex flex-col items-center gap-0.5">
+                              {/* <button className="z-20 flex items-center gap-1 px-2 py-1 transition-colors shadow-xl rounded-xl bg-zinc-700 hover:bg-zinc-600 shadow-black/40">
                 <span className="inline-block leading-tight text-slate-300">
                   Ethereum
                 </span>
                 <ChevronDown size={16} className="text-slate-300" />
               </button> */}
-                      <span className="inline-block leading-tight text-slate-300">
-                        Ethereum
-                      </span>
-                      <span className="inline-block leading-tight text-slate-200">
-                        0.1 ETH
-                      </span>
-                    </div>
-                    <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
-                      Change
-                    </span>
-                  </div>
+                              <span className="inline-block leading-tight text-slate-300">
+                                Ethereum
+                              </span>
+                              <span className="inline-block leading-tight text-slate-200">
+                                0.1 ETH
+                              </span>
+                            </div>
+                            <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
+                              Change
+                            </span>
+                          </div>
 
-                  <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
-                    <ChevronsRight />
-                  </div>
+                          <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
+                            <ChevronsRight />
+                          </div>
 
-                  <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
-                    <TokenLogo
-                      src={{
-                        token: '/assets/frax.png',
-                        network: '/assets/optimism.png',
-                      }}
-                      alt={{ token: 'Frax', network: 'Optimism' }}
-                    />
-                    <div className="mt-1 flex flex-col items-center gap-0.5">
-                      <span className="inline-block leading-tight text-slate-400">
-                        Frax
-                      </span>
-                      <span className="inline-block leading-tight text-slate-200">
-                        50.18 FRAX
-                      </span>
-                    </div>
-                  </div>
+                          <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
+                            <TokenLogo
+                              src={{
+                                token: '/assets/frax.png',
+                                network: '/assets/optimism.png',
+                              }}
+                              alt={{ token: 'Frax', network: 'Optimism' }}
+                            />
+                            <div className="mt-1 flex flex-col items-center gap-0.5">
+                              <span className="inline-block leading-tight text-slate-400">
+                                Frax
+                              </span>
+                              <span className="inline-block leading-tight text-slate-200">
+                                50.18 FRAX
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button className="w-full py-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                          Continue
+                        </button>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="onramp-to-frax">
+                      <AccordionTrigger className="px-6 py-3">
+                        <h3 className="text-[20px] font-medium text-slate-300">
+                          Onramp to Frax
+                        </h3>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
+                        <ul className="flex flex-col gap-2 mt-3">
+                          <OnrampCard src="/assets/stably.png" name="Stably" />
+                          <OnrampCard
+                            src="/assets/transak.svg"
+                            name="Transak"
+                          />
+                        </ul>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
-
-                <button className="w-full py-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
-                  Continue
-                </button>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="onramp-to-frax">
-              <AccordionTrigger>
-                <h3 className="text-2xl font-medium text-slate-300">
-                  Onramp to Frax
-                </h3>
-              </AccordionTrigger>
-              <AccordionContent>
-                <ul className="flex flex-col gap-2 mt-3">
-                  <OnrampCard src="/assets/stably.png" name="Stably" />
-                  <OnrampCard src="/assets/transak.svg" name="Transak" />
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+              </>
+            )}
+          </NoSSR>
         </div>
       </div>
     </div>
