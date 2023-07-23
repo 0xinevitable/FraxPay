@@ -32,7 +32,9 @@
     "react-metamask-avatar": "^1.2.1",
     "tailwind-merge": "^1.13.2",
     "tailwindcss-animate": "^1.0.6",
-    "title": "^3.5.3"
+    "title": "^3.5.3",
+    "viem": "^1.4.1",
+    "wagmi": "^1.3.9"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.4",

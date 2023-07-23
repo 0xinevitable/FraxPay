@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
+import { useAccount, useConnect } from 'wagmi';
 
 import {
   NavigationMenu,
@@ -8,6 +9,38 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { shortenAddress } from '@/lib/address';
+
+const CurrentAddress: React.FC = () => {
+  const { connector: activeConnector, isConnected, address } = useAccount();
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
+
+  return (
+    <div>
+      {isConnected ? (
+        <div>
+          {activeConnector?.id} {shortenAddress(address)}
+        </div>
+      ) : (
+        <>
+          {connectors.map((connector) => (
+            <button
+              disabled={!connector.ready}
+              key={connector.id}
+              onClick={() => connect({ connector })}
+            >
+              {connector.name}
+              {isLoading &&
+                pendingConnector?.id === connector.id &&
+                ' (connecting)'}
+            </button>
+          ))}
+        </>
+      )}
+    </div>
+  );
+};
 
 export const NavigationBar: React.FC = () => {
   return (
@@ -30,6 +63,8 @@ export const NavigationBar: React.FC = () => {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+
+      <CurrentAddress></CurrentAddress>
     </div>
   );
 };

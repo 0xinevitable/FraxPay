@@ -2,9 +2,11 @@ import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { WagmiConfig } from 'wagmi';
 
 import { GlobalStyle } from '@/components/GlobalStyle';
 import { NavigationBar } from '@/components/NavigationBar';
+import { wagmiConfig } from '@/lib/web3';
 import '@/styles/globals.css';
 
 const lexend = localFont({
@@ -16,7 +18,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
 
   return (
-    <React.Fragment>
+    <WagmiConfig config={wagmiConfig}>
       <GlobalStyle />
 
       {router.route !== '/pay/[paymentRequestID]' && <NavigationBar />}
@@ -28,7 +30,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
           font-family: ${lexend.style.fontFamily};
         }
       `}</style>
-    </React.Fragment>
+    </WagmiConfig>
   );
 };
 
