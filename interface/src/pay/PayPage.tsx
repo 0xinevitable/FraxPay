@@ -1,12 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import clsx from 'clsx';
-import {
-  ChevronsRight,
-  Chrome,
-  CircleDashed,
-  Loader,
-  Loader2,
-} from 'lucide-react';
+import { ChevronsRight, Chrome, CircleDashed, Loader2 } from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
@@ -63,8 +57,7 @@ const HAS_INSUFFICIENT_FUNDS = true;
 
 const PayPage: NextPage = () => {
   const { connector: activeConnector, isConnected, address } = useAccount();
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
+  const { connect, error, isLoading, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -160,7 +153,7 @@ const PayPage: NextPage = () => {
                     ([connectorIdentifier, connector]) => (
                       <button
                         disabled={!connector.ready}
-                        className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75"
+                        className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75 disabled:cursor-not-allowed"
                         key={connector.id}
                         onClick={() => connect({ connector })}
                       >
@@ -264,7 +257,7 @@ const PayPage: NextPage = () => {
                         </h3>
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
-                        MetaMask?
+                        switch address in your wallet
                       </AccordionContent>
                     </AccordionItem> */}
 
@@ -280,65 +273,61 @@ const PayPage: NextPage = () => {
                   <span>Balance: $0</span>
                 </div> */}
 
-                        <div className="flex items-center mt-3">
-                          <div
-                            className={clsx(
-                              'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
-                              'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
-                            )}
-                          >
-                            <TokenLogo
-                              src={{
-                                token: '/assets/eth.png',
-                                network: '/assets/optimism.png',
-                              }}
-                              alt={{ token: 'Ethereum', network: 'Optimism' }}
-                            />
-                            <div className="mt-1 flex flex-col items-center gap-0.5">
-                              {/* <button className="z-20 flex items-center gap-1 px-2 py-1 transition-colors shadow-xl rounded-xl bg-zinc-700 hover:bg-zinc-600 shadow-black/40">
-                <span className="inline-block leading-tight text-slate-300">
-                  Ethereum
-                </span>
-                <ChevronDown size={16} className="text-slate-300" />
-              </button> */}
-                              <span className="inline-block leading-tight text-slate-300">
-                                Ethereum
-                              </span>
-                              <span className="inline-block leading-tight text-slate-200">
-                                0.1 ETH
-                              </span>
-                            </div>
-                            <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
-                              Change
-                            </span>
-                          </div>
-
-                          <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
-                            <ChevronsRight />
-                          </div>
-
-                          <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
-                            <TokenLogo
-                              src={{
-                                token: '/assets/frax.png',
-                                network: '/assets/optimism.png',
-                              }}
-                              alt={{ token: 'Frax', network: 'Optimism' }}
-                            />
-                            <div className="mt-1 flex flex-col items-center gap-0.5">
-                              <span className="inline-block leading-tight text-slate-400">
-                                Frax
-                              </span>
-                              <span className="inline-block leading-tight text-slate-200">
-                                50.18 FRAX
+                        <div className="flex flex-col w-full">
+                          <div className="flex items-center mt-3">
+                            <div
+                              className={clsx(
+                                'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
+                                'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
+                              )}
+                            >
+                              <TokenLogo
+                                src={{
+                                  token: '/assets/eth.png',
+                                  network: '/assets/optimism.png',
+                                }}
+                                alt={{ token: 'Ethereum', network: 'Optimism' }}
+                              />
+                              <div className="mt-1 flex flex-col items-center gap-0.5">
+                                <span className="inline-block leading-tight text-slate-300">
+                                  Ethereum
+                                </span>
+                                <span className="inline-block leading-tight text-slate-200">
+                                  0.1 ETH
+                                </span>
+                              </div>
+                              <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
+                                Change
                               </span>
                             </div>
+
+                            <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
+                              <ChevronsRight />
+                            </div>
+
+                            <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
+                              <TokenLogo
+                                src={{
+                                  token: '/assets/frax.png',
+                                  network: '/assets/optimism.png',
+                                }}
+                                alt={{ token: 'Frax', network: 'Optimism' }}
+                              />
+                              <div className="mt-1 flex flex-col items-center gap-0.5">
+                                <span className="inline-block leading-tight text-slate-400">
+                                  Frax
+                                </span>
+                                <span className="inline-block leading-tight text-slate-200">
+                                  50.18 FRAX
+                                </span>
+                              </div>
+                            </div>
                           </div>
+
+                          <button className="w-full py-3 mt-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                            Continue
+                          </button>
                         </div>
-
-                        <button className="w-full py-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
-                          Continue
-                        </button>
                       </AccordionContent>
                     </AccordionItem>
 
