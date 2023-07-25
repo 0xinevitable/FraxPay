@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+const MAX_FRACTION_DIGITS = 6;
 const PRICE_ANIMATION_DURATION = 1_000;
 const haikunator = new Haikunator({
   seed: 'custom-seed',
@@ -111,7 +112,10 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
     currentAnimationTargetRef.current = end;
     const startTimestamp = performance.now();
 
-    const fractionDigits = (price.split('.')[1] || '').length;
+    const fractionDigits = Math.min(
+      (price.split('.')[1] || '').length,
+      MAX_FRACTION_DIGITS,
+    );
     const step = (timestamp: number) => {
       if (currentAnimationTargetRef.current !== end) {
         return;
@@ -142,12 +146,26 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   const onChangePrice = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
-      const strippedValue = inputValue.replace(/[^0-9.,]/g, '');
+      let strippedValue = inputValue.replace(/[^0-9.,]/g, '');
 
+      // replace multiple dots/commas with a single one
+      strippedValue = strippedValue.replace(/(\..*)\./g, '$1');
+      strippedValue = strippedValue.replace(/(,.*)\,/g, '$1');
+
+      // fraction digits up to MAX_FRACTION_DIGITS
+      strippedValue = strippedValue.replace(
+        /(\.[0-9]{0,6})[0-9]*/g,
+        (_, p1) => p1,
+      );
       setPrice(strippedValue);
     },
     [],
   );
+
+  const onClickCreate = useCallback(() => {
+    const _price = price || '0';
+    console.log({ name, price: _price, shippingInfoForm });
+  }, [price, name, shippingInfoForm]);
 
   return (
     <div className="flex flex-col mt-[64px]">
@@ -224,9 +242,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
                 {...generateShippingInfoFormItemProps('phone')}
               />
             </div>
-            <Link href="/pay" className="w-fit">
-              <Button>Create Link</Button>
-            </Link>
+            <Button onClick={onClickCreate}>Create Link</Button>
           </CardContent>
         </Card>
 
