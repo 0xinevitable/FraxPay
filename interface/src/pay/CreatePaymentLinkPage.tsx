@@ -3,10 +3,10 @@
 /* eslint-disable @next/next/no-img-element */
 import Haikunator from 'haikunator';
 import { GetServerSideProps, NextPage } from 'next';
-import Link from 'next/link';
 import { useCallback, useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 import title from 'title';
+import { useAccount } from 'wagmi';
 
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Product } from '@/pages/api/create';
 
 const MAX_FRACTION_DIGITS = 6;
 const PRICE_ANIMATION_DURATION = 1_000;
@@ -71,6 +72,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   const [name, setName] = useState<string>(props.randomDefaultName);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  const [imageURL, setImageURL] = useState<string>('/assets/eva-max-002.jpg');
   const [price, setPrice] = useState<string>('');
   const currentAnimationPriceRef = useRef<number>(0);
   const currentAnimationTargetRef = useRef<number>(0);
@@ -162,10 +164,19 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
     [],
   );
 
+  const { address } = useAccount();
   const onClickCreate = useCallback(() => {
     const _price = price || '0';
-    console.log({ name, price: _price, shippingInfoForm });
-  }, [price, name, shippingInfoForm]);
+    const product: Product = {
+      name,
+      price: _price,
+      shipping: shippingInfoForm,
+      imageURL,
+      enabled: true,
+      ownerAddress: address,
+    };
+    console.log(product);
+  }, [price, name, shippingInfoForm, imageURL, address]);
 
   return (
     <div className="flex flex-col mt-[64px]">
@@ -191,6 +202,16 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
                 className="text-2xl h-14"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-base font-medium text-slate-50">
+                Image URL (Optional)
+              </Label>
+              <Input
+                className="text-2xl h-14"
+                value={imageURL}
+                onChange={(e) => setImageURL(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -249,7 +270,8 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
         <ProductCard
           name={name}
           priceDisplay={priceDisplay}
-          imageURL="/assets/package.jpg"
+          imageURL={imageURL}
+          imageRatio={1 / 1}
           description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
         />
       </div>
