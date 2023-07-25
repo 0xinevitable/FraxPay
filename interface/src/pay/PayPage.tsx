@@ -40,7 +40,7 @@ enum Stage {
   CONFIRM_PAYMENT,
 }
 
-const HAS_INSUFFICIENT_FUNDS = true;
+const HAS_INSUFFICIENT_FUNDS = false;
 
 const PayPage: NextPage = () => {
   const { connector: activeConnector, isConnected, address } = useAccount();
@@ -373,7 +373,23 @@ const PayPage: NextPage = () => {
                 <div className="flex flex-col w-full h-full py-6">
                   <CircleDashed className="mx-auto text-slate-200" size={48} />
                   <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
-                    Pay $43 with <br />
+                    Pay{' '}
+                    <span
+                      className="inline-flex items-center gap-2 py-2 pr-1.5 pl-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
+                      style={{
+                        background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
+                      }}
+                    >
+                      $43
+                      <TokenLogo
+                        className="inline-flex w-8 h-8 -my-3 align-middle"
+                        src={{
+                          token: '/assets/frax.png',
+                        }}
+                        alt={{ token: 'Frax' }}
+                      />
+                    </span>{' '}
+                    with <br />
                     Wallet{' '}
                     <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
                       <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
