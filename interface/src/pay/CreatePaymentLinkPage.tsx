@@ -11,8 +11,10 @@ import title from 'title';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const PRICE_ANIMATION_DURATION = 1_000;
@@ -150,7 +152,22 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
                 onChange={onChangePrice}
               />
             </div>
-            <Link href="/pay">
+
+            <div className="flex flex-col gap-4">
+              <CheckboxItem id="name" name="Name" description="User Name" />
+              <CheckboxItem id="email" name="Email" description="User Email" />
+              <CheckboxItem
+                id="address"
+                name="Address"
+                description="City, Country, and Address with ZIP/Postal Code"
+              />
+              <CheckboxItem
+                id="phone"
+                name="Phone Number"
+                description="Phone Number"
+              />
+            </div>
+            <Link href="/pay" className="w-fit">
               <Button>Create Link</Button>
             </Link>
           </CardContent>
@@ -168,3 +185,40 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
 };
 
 export default CreatePaymentLinkPage;
+
+type CheckboxItemProps = {
+  id: string;
+  name: string;
+  description?: string;
+};
+const CheckboxItem: React.FC<CheckboxItemProps> = ({
+  id,
+  name,
+  description,
+}) => (
+  <div className="flex space-x-2 select-none items-top">
+    {/* <Checkbox id={id} /> */}
+    <Switch id={id} />
+    <div className="grid gap-1.5 leading-none">
+      <label
+        htmlFor={id}
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        {name}
+      </label>
+
+      <div className="flex">
+        <Checkbox id={`${id}-required`} />
+        <label
+          htmlFor={`${id}-required`}
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Required
+        </label>
+      </div>
+      <p className="text-sm text-muted-foreground text-slate-500">
+        {description}
+      </p>
+    </div>
+  </div>
+);
