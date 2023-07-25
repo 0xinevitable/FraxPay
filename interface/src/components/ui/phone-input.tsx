@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 
-import { Input } from '@/components/ui/input';
+import { Input, InputProps } from '@/components/ui/input';
 import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +32,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         !phoneNumberInputDivRef.current.contains(event.target as any) &&
         open
       ) {
-        // onToggle();
         setPhoneNumberSelectOpen((prev) => !prev);
         setQuery('');
       }
@@ -46,9 +45,8 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 
   return (
     <div className="flex flex-col flex-1 gap-1">
-      <Label className="mt-2 font-medium text-zinc-400">Address</Label>
+      <Label className="mt-2 font-medium text-zinc-400">Phone Number</Label>
 
-      {/* FIXME: 선택한 나라 이름 표시하기, contianer component 주입할수있을텐데 거기에 gap 고치기 */}
       <PhoneInputWithCountrySelect
         placeholder="Enter phone number"
         value={phoneNumber}
@@ -67,9 +65,11 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
             <button
               type="button"
               // FIXME: use `cn` to clean className
-              className={`${
-                disabled ? 'bg-zinc-100' : 'bg-zinc-950'
-              } h-[38px] relative w-full border border-zinc-700 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-zinc-800 focus:border-zinc-800 sm:text-sm`}
+              className={cn(
+                'h-[38px] relative w-full border border-zinc-700 rounded-t-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default',
+                'focus:outline-none focus:ring-1 focus:ring-zinc-800 focus:border-zinc-800 sm:text-sm',
+                disabled ? 'bg-zinc-100' : 'bg-zinc-950',
+              )}
               aria-haspopup="listbox"
               aria-expanded="true"
               aria-labelledby="listbox-label"
@@ -91,7 +91,10 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
                   />
                 )}
                 <span className="font-normal truncate text-zinc-300">
-                  {/* {selectedValue.title} */}
+                  {!value
+                    ? 'International'
+                    : COUNTRIES.find((v) => v.value === value)?.title ||
+                      'Unknown'}
                 </span>
               </span>
               <span
@@ -159,7 +162,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
                       onClick={() => {
                         onChange('');
                         setQuery('');
-                        // onToggle();
                         setPhoneNumberSelectOpen((prev) => !prev);
                       }}
                     >
@@ -209,7 +211,6 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
                             onClick={() => {
                               onChange(k.value);
                               setQuery('');
-                              // onToggle();
                               setPhoneNumberSelectOpen((prev) => !prev);
                             }}
                           >
@@ -247,8 +248,19 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
             className="inline object-contain w-6 h-4 mr-2 rounded-sm"
           />
         )}
-        inputComponent={Input}
+        inputComponent={InputComponent}
       />
     </div>
   );
 };
+
+const InputComponent = React.forwardRef<HTMLInputElement, InputProps>(
+  (props, ref) => (
+    <Input
+      {...props}
+      ref={ref}
+      className={cn(props.className, 'mt-[-1px] rounded-t-none')}
+    />
+  ),
+);
+InputComponent.displayName = 'InputComponent';
