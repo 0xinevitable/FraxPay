@@ -351,6 +351,32 @@ const PayPage: NextPage = () => {
                 </div>
               </>
             )}
+
+            {isConnected && !HAS_INSUFFICIENT_FUNDS && (
+              <>
+                <button
+                  className="absolute px-2 border rounded-md top-4 right-4 bg-zinc-800 border-zinc-700 text-zinc-500"
+                  onClick={() => disconnect()}
+                >
+                  Disconnect
+                </button>
+                <div className="flex flex-col w-full h-full py-6">
+                  <CircleDashed className="mx-auto text-slate-200" size={48} />
+                  <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
+                    Pay $43 with <br />
+                    Wallet{' '}
+                    <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
+                      <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
+                        <MetaMaskAvatar address={address} size={28} />
+                      </div>
+                      <span>{address.slice(0, 6)}</span>
+                    </span>{' '}
+                  </h2>
+
+                  <Separator className="my-8" />
+                </div>
+              </>
+            )}
           </NoSSR>
         </div>
       </div>

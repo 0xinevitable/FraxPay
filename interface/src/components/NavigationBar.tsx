@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/navigation-menu';
 import { shortenAddress } from '@/lib/address';
 
+import { Button } from './ui/button';
+
 const CurrentAddress: React.FC = () => {
   const { connector: activeConnector, isConnected, address } = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
@@ -19,23 +21,22 @@ const CurrentAddress: React.FC = () => {
   return (
     <div>
       {isConnected ? (
-        <div>
-          {activeConnector?.id} {shortenAddress(address)}
-        </div>
+        <div>{shortenAddress(address)}</div>
       ) : (
         <>
-          {connectors.map((connector) => (
+          {/* {connectors.map((connector) => (
             <button
               disabled={!connector.ready}
               key={connector.id}
               onClick={() => connect({ connector })}
             >
-              {connector.name}
+              Connect
               {isLoading &&
                 pendingConnector?.id === connector.id &&
                 ' (connecting)'}
-            </button>
-          ))}
+            </button> */}
+          {/* ))} */}
+          <Button>Connect Wallet</Button>
         </>
       )}
     </div>
@@ -64,7 +65,7 @@ export const NavigationBar: React.FC = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      <CurrentAddress></CurrentAddress>
+      <CurrentAddress />
     </div>
   );
 };
