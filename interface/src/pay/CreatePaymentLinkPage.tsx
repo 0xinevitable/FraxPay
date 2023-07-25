@@ -16,7 +16,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Product } from '@/pages/api/create';
+import {
+  Product,
+  ShippingInformationForm,
+  ShippingInformationFormID,
+} from '@/types/product';
 
 const MAX_FRACTION_DIGITS = 6;
 const PRICE_ANIMATION_DURATION = 1_000;
@@ -42,14 +46,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   };
 };
 
-type FormItem = {
-  enabled: boolean;
-  required: boolean;
-};
-type ShippingInformationFormID = 'name' | 'email' | 'address' | 'phone';
-type ShippingInformationForm = Record<ShippingInformationFormID, FormItem>;
-
-const defaultShippingInformationForm = {
+const defaultShippingInformationForm: ShippingInformationForm = {
   name: {
     enabled: true,
     required: false,
@@ -73,6 +70,7 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [imageURL, setImageURL] = useState<string>('/assets/eva-max-002.jpg');
+  const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<string>('');
   const currentAnimationPriceRef = useRef<number>(0);
   const currentAnimationTargetRef = useRef<number>(0);
@@ -171,12 +169,13 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
       name,
       price: _price,
       shipping: shippingInfoForm,
+      description,
       imageURL,
       enabled: true,
       ownerAddress: address,
     };
     console.log(product);
-  }, [price, name, shippingInfoForm, imageURL, address]);
+  }, [price, name, shippingInfoForm, imageURL, address, description]);
 
   return (
     <div className="flex flex-col mt-[64px]">
@@ -206,12 +205,22 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-base font-medium text-slate-50">
-                Image URL (Optional)
+                Image URL
               </Label>
               <Input
                 className="text-2xl h-14"
                 value={imageURL}
                 onChange={(e) => setImageURL(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-base font-medium text-slate-50">
+                Description
+              </Label>
+              <Input
+                className="text-2xl h-14"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -242,6 +251,14 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
             </div>
 
             <div className="flex flex-col gap-4">
+              <button
+                className="px-2 border rounded-md w-fit bg-zinc-800 border-zinc-700 text-zinc-500"
+                onClick={() =>
+                  setShippingInfoForm(defaultShippingInformationForm)
+                }
+              >
+                Reset Form
+              </button>
               <CheckboxItem
                 name="Name"
                 description="User Name"
