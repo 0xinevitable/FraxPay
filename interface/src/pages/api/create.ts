@@ -17,6 +17,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // 들어온 정보대로 새로운 payment link (product) 를 만듦. key는 랜덤 nanoid
   let productID = nanoid();
+  let key = `product:${productID}`;
+
   const product: Product = req.body.product;
 
   // validate product with zod
@@ -33,12 +35,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   let hasError: boolean = false;
   for (let i = 0; i < 3; i++) {
     try {
-      await redis.set(productID, JSON.stringify(product));
+      await redis.set(key, JSON.stringify(product));
       hasError = false;
       break;
     } catch (e) {
       console.log(e);
+
       productID = nanoid();
+      key = `product:${productID}`;
       hasError = true;
     }
   }
