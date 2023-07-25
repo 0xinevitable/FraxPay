@@ -40,6 +40,32 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   };
 };
 
+type FormItem = {
+  enabled: boolean;
+  required: boolean;
+};
+type ShippingInformationFormID = 'name' | 'email' | 'address' | 'phone';
+type ShippingInformationForm = Record<ShippingInformationFormID, FormItem>;
+
+const defaultShippingInformationForm = {
+  name: {
+    enabled: true,
+    required: false,
+  },
+  email: {
+    enabled: true,
+    required: true,
+  },
+  address: {
+    enabled: true,
+    required: false,
+  },
+  phone: {
+    enabled: true,
+    required: false,
+  },
+};
+
 const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   const [name, setName] = useState<string>(props.randomDefaultName);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +74,29 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
   const currentAnimationPriceRef = useRef<number>(0);
   const currentAnimationTargetRef = useRef<number>(0);
   const [priceDisplay, setPriceDisplay] = useState<string>('');
+
+  const [shippingInfoForm, setShippingInfoForm] =
+    useState<ShippingInformationForm>(defaultShippingInformationForm);
+  const generateShippingInfoFormItemProps = useCallback(
+    (id: ShippingInformationFormID) => ({
+      id: id,
+      enabled: shippingInfoForm[id].enabled,
+      required: shippingInfoForm[id].required,
+      onClickSelect: (status: boolean) => {
+        setShippingInfoForm((prev) => ({
+          ...prev,
+          [id]: { ...prev[id], enabled: status },
+        }));
+      },
+      onClickRequired: (status: boolean) => {
+        setShippingInfoForm((prev) => ({
+          ...prev,
+          [id]: { ...prev[id], required: status },
+        }));
+      },
+    }),
+    [shippingInfoForm],
+  );
 
   useEffect(() => {
     if (!nameInputRef.current) {
@@ -154,17 +203,25 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
             </div>
 
             <div className="flex flex-col gap-4">
-              <CheckboxItem id="name" name="Name" description="User Name" />
-              <CheckboxItem id="email" name="Email" description="User Email" />
               <CheckboxItem
-                id="address"
-                name="Address"
-                description="City, Country, and Address with ZIP/Postal Code"
+                name="Name"
+                description="User Name"
+                {...generateShippingInfoFormItemProps('name')}
               />
               <CheckboxItem
-                id="phone"
+                name="Email"
+                description="User Email"
+                {...generateShippingInfoFormItemProps('email')}
+              />
+              <CheckboxItem
+                name="Address"
+                description="City, Country, and Address with ZIP/Postal Code"
+                {...generateShippingInfoFormItemProps('address')}
+              />
+              <CheckboxItem
                 name="Phone Number"
                 description="Phone Number"
+                {...generateShippingInfoFormItemProps('phone')}
               />
             </div>
             <Link href="/pay" className="w-fit">
@@ -190,15 +247,31 @@ type CheckboxItemProps = {
   id: string;
   name: string;
   description?: string;
+  enabled: boolean;
+  required: boolean;
+  onClickSelect: (status: boolean) => void;
+  onClickRequired: (status: boolean) => void;
 };
 const CheckboxItem: React.FC<CheckboxItemProps> = ({
   id,
   name,
   description,
+  enabled,
+  required,
+  onClickSelect,
+  onClickRequired,
 }) => (
   <div className="flex space-x-2 select-none items-top">
-    {/* <Checkbox id={id} /> */}
-    <Switch id={id} />
+    <Switch
+      id={id}
+      checked={enabled}
+      onCheckedChange={(value) => {
+        if (!value) {
+          onClickRequired(false);
+        }
+        onClickSelect(value);
+      }}
+    />
     <div className="grid gap-1.5 leading-none">
       <label
         htmlFor={id}
@@ -208,7 +281,16 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({
       </label>
 
       <div className="flex">
-        <Checkbox id={`${id}-required`} />
+        <Checkbox
+          id={`${id}-required`}
+          checked={required}
+          onCheckedChange={(value) => {
+            if (!!value) {
+              onClickSelect(true);
+            }
+            onClickRequired(!!value);
+          }}
+        />
         <label
           htmlFor={`${id}-required`}
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
