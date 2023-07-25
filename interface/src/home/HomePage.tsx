@@ -2,12 +2,28 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { Ghost } from 'lucide-react';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
+import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};
 
 const HomePage: NextPage = () => {
   return (
@@ -25,7 +41,7 @@ const HomePage: NextPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center gap-2 px-6 py-10 rounded-xl shadow-2xl bg-zinc-900 shadow-zinc-950/40">
+            <div className="flex flex-col items-center gap-2 px-6 py-10 shadow-2xl rounded-xl bg-zinc-900 shadow-zinc-950/40">
               <Ghost className="text-slate-50" size={36} />
               <h4 className="mt-2 text-xl font-semibold leading-tight text-center text-slate-50">
                 List Empty
