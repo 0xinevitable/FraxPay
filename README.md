@@ -18,3 +18,7 @@ yarn
 # start frontend dev server
 yarn workspace interface dev
 ```
+
+## 🔴 Deployments
+
+- Optimism(`FraxPayCore`): `0x986ec2aeE73E21B28b29A2E040DDFfd839F6F07d`
