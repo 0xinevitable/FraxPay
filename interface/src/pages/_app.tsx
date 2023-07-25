@@ -11,16 +11,23 @@ import { isSameAddress } from '@/lib/address';
 import { wagmiConfig } from '@/lib/web3';
 import '@/styles/globals.css';
 
+const PAYMENT_PAGE_PATH = '/pay/[productID]';
+
 const lexend = localFont({
   src: '../../public/fonts/Lexend-VariableFont_wght.ttf',
   variable: '--font-lexend',
 });
 
 const Web3Provider: React.FC = () => {
+  const router = useRouter();
   const account = useAccount();
   const session = useSession();
 
   useEffect(() => {
+    if (router.pathname === PAYMENT_PAGE_PATH) {
+      return;
+    }
+
     const handleLogin = async () => {
       try {
         if (account.isConnected && account.address) {
@@ -50,11 +57,11 @@ const Web3Provider: React.FC = () => {
       return;
     }
 
-    console.log(session);
+    console.log(session, router);
     if (session.status === 'unauthenticated') {
       handleLogin();
     }
-  }, [account.isConnected, account.address, session]);
+  }, [account.isConnected, account.address, session, router]);
 
   return null;
 };
@@ -71,7 +78,7 @@ const App: React.FC<AppProps> = ({
         <GlobalStyle />
 
         <Web3Provider />
-        {router.route !== '/pay/[paymentRequestID]' && <NavigationBar />}
+        {router.pathname !== PAYMENT_PAGE_PATH && <NavigationBar />}
         <Component {...pageProps} />
 
         <div id="portal" />
