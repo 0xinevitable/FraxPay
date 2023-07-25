@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PhoneInputWithCountrySelect from 'react-phone-number-input';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
@@ -40,6 +40,11 @@ const MetaMaskAvatar = dynamic(
     loading: () => <div />,
   },
 );
+
+enum Stage {
+  SHIPPING_INFO_AND_CONNECT,
+  CONFIRM_AMOUNT,
+}
 
 const getNameByConnectorIdentifier = (
   connectorIdentifier: string,
@@ -80,10 +85,10 @@ const PayPage: NextPage = () => {
     useState<boolean>(false);
   const phoneNumberInputDivRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         phoneNumberInputDivRef.current &&
-        !phoneNumberInputDivRef.current.contains(event.target) &&
+        !phoneNumberInputDivRef.current.contains(event.target as any) &&
         open
       ) {
         // onToggle();
@@ -97,6 +102,8 @@ const PayPage: NextPage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [phoneNumberInputDivRef]);
+
+  const [stage, setStage] = useState<Stage>(Stage.SHIPPING_INFO_AND_CONNECT);
 
   return (
     <div className="h-full bg-zinc-950">
@@ -113,7 +120,7 @@ const PayPage: NextPage = () => {
 
         <div className="relative flex flex-col flex-1 rounded-xl bg-zinc-900 h-fit">
           <NoSSR>
-            {!isConnected && (
+            {stage === Stage.SHIPPING_INFO_AND_CONNECT && (
               <div className="flex flex-col w-full h-full px-6 py-6">
                 <h2 className="mb-4 text-2xl font-medium leading-snug text-left text-slate-200">
                   <span className="w-[24px] min-w-[24px] inline-flex mr-2 text-xl items-center justify-center h-[24px] text-zinc-400 bg-zinc-700 rounded-full">
@@ -183,12 +190,7 @@ const PayPage: NextPage = () => {
                     />
                   )}
                   countryOptionsOrder={['🌐', '...']}
-                  countrySelectComponent={({
-                    options,
-                    disabled,
-                    value,
-                    onChange,
-                  }) => (
+                  countrySelectComponent={({ disabled, value, onChange }) => (
                     <div className={cn('relative')}>
                       <button
                         type="button"
