@@ -26,6 +26,7 @@ export const wagmiConnectors = {
 
 export const wagmiConfig = createConfig({
   autoConnect: true,
+  connectors: Object.values(wagmiConnectors),
   publicClient,
   webSocketPublicClient,
 });

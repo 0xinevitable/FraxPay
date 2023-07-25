@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
+import { ConnectButton } from '@/components/ConnectButton';
 import { NoSSR } from '@/components/NoSSR';
 import { OnrampCard } from '@/components/OnrampCard';
 import { ProductCard } from '@/components/ProductCard';
@@ -38,26 +39,6 @@ enum Stage {
   SHIPPING_INFO_AND_CONNECT,
   CONFIRM_PAYMENT,
 }
-
-const getNameByConnectorIdentifier = (
-  connectorIdentifier: string,
-  connectorName?: string,
-) => {
-  connectorIdentifier = connectorIdentifier.toLowerCase();
-  if (connectorIdentifier === 'injected') {
-    if (!!connectorName) {
-      return `Injected (${connectorName})`;
-    }
-    return 'Injected';
-  }
-  if (connectorIdentifier === 'metamask') {
-    return 'MetaMask';
-  }
-  if (connectorIdentifier === 'coinbasewallet') {
-    return 'Coinbase Wallet';
-  }
-  return 'Unknown';
-};
 
 const HAS_INSUFFICIENT_FUNDS = true;
 
@@ -172,50 +153,12 @@ const PayPage: NextPage = () => {
                   <div className="grid w-full grid-cols-2 gap-2">
                     {Object.entries(wagmiConnectors).map(
                       ([connectorIdentifier, connector]) => (
-                        <button
-                          disabled={!connector.ready}
-                          className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75 disabled:cursor-not-allowed"
+                        <ConnectButton
                           key={connector.id}
+                          connector={connector}
+                          connectorIdentifier={connectorIdentifier}
                           onClick={() => connect({ connector })}
-                        >
-                          {connectorIdentifier === 'injected' && (
-                            <span className="w-[48px] min-w-[48px]">
-                              <Chrome className="text-slate-300" size={48} />
-                            </span>
-                          )}
-                          {connectorIdentifier === 'metamask' && (
-                            <img
-                              alt="MetaMask"
-                              src="/assets/connectors/metamask.svg"
-                              className="w-[48px] h-[48px]"
-                            />
-                          )}
-                          {connectorIdentifier === 'coinbase' && (
-                            <img
-                              alt="Coinbase Wallet"
-                              src="/assets/connectors/coinbase.svg"
-                              className="w-[48px] h-[48px]"
-                            />
-                          )}
-                          <div className="flex flex-col h-full justify-center flex-1 gap-1 ml-2 max-w-[calc(100%-52px)]">
-                            <span className="block w-full text-left truncate transition-colors text-zinc-300 group-hover:text-white">
-                              {getNameByConnectorIdentifier(
-                                connector.id,
-                                connector.name,
-                              )}
-                            </span>
-                            {isLoading &&
-                              pendingConnector?.id === connector.id && (
-                                <span className="inline-flex items-center w-full gap-1 text-left text-slate-400">
-                                  <Loader2
-                                    className="animate-spin text-slate-400"
-                                    size={16}
-                                  />
-                                  Connecting
-                                </span>
-                              )}
-                          </div>
-                        </button>
+                        />
                       ),
                     )}
                   </div>
