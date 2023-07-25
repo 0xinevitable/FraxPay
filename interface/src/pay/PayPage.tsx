@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { ChevronsRight, Chrome, CircleDashed, Loader2 } from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 import { NoSSR } from '@/components/NoSSR';
@@ -36,7 +36,7 @@ const MetaMaskAvatar = dynamic(
 
 enum Stage {
   SHIPPING_INFO_AND_CONNECT,
-  CONFIRM_AMOUNT,
+  CONFIRM_PAYMENT,
 }
 
 const getNameByConnectorIdentifier = (
@@ -72,6 +72,12 @@ const PayPage: NextPage = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>('');
 
   const [stage, setStage] = useState<Stage>(Stage.SHIPPING_INFO_AND_CONNECT);
+
+  useEffect(() => {
+    if (!isConnected && stage === Stage.CONFIRM_PAYMENT) {
+      setStage(Stage.SHIPPING_INFO_AND_CONNECT);
+    }
+  }, [isConnected, stage]);
 
   return (
     <div className="h-full bg-zinc-950">
@@ -162,109 +168,156 @@ const PayPage: NextPage = () => {
                   Connect Wallet
                 </h2>
 
-                <div className="grid w-full grid-cols-2 gap-2">
-                  {Object.entries(wagmiConnectors).map(
-                    ([connectorIdentifier, connector]) => (
-                      <button
-                        disabled={!connector.ready}
-                        className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75 disabled:cursor-not-allowed"
-                        key={connector.id}
-                        onClick={() => connect({ connector })}
-                      >
-                        {connectorIdentifier === 'injected' && (
-                          <span className="w-[48px] min-w-[48px]">
-                            <Chrome className="text-slate-300" size={48} />
-                          </span>
-                        )}
-                        {connectorIdentifier === 'metamask' && (
-                          <img
-                            alt="MetaMask"
-                            src="/assets/connectors/metamask.svg"
-                            className="w-[48px] h-[48px]"
-                          />
-                        )}
-                        {connectorIdentifier === 'coinbase' && (
-                          <img
-                            alt="Coinbase Wallet"
-                            src="/assets/connectors/coinbase.svg"
-                            className="w-[48px] h-[48px]"
-                          />
-                        )}
-                        <div className="flex flex-col h-full justify-center flex-1 gap-1 ml-2 max-w-[calc(100%-52px)]">
-                          <span className="block w-full text-left truncate transition-colors text-zinc-300 group-hover:text-white">
-                            {getNameByConnectorIdentifier(
-                              connector.id,
-                              connector.name,
-                            )}
-                          </span>
-                          {isLoading &&
-                            pendingConnector?.id === connector.id && (
-                              <span className="inline-flex items-center w-full gap-1 text-left text-slate-400">
-                                <Loader2
-                                  className="animate-spin text-slate-400"
-                                  size={16}
-                                />
-                                Connecting
-                              </span>
-                            )}
-                        </div>
-                      </button>
-                    ),
-                  )}
-                </div>
+                {!isConnected && (
+                  <div className="grid w-full grid-cols-2 gap-2">
+                    {Object.entries(wagmiConnectors).map(
+                      ([connectorIdentifier, connector]) => (
+                        <button
+                          disabled={!connector.ready}
+                          className="flex p-3 transition-colors rounded-lg group bg-zinc-800 hover:bg-zinc-700/80 disabled:opacity-75 disabled:cursor-not-allowed"
+                          key={connector.id}
+                          onClick={() => connect({ connector })}
+                        >
+                          {connectorIdentifier === 'injected' && (
+                            <span className="w-[48px] min-w-[48px]">
+                              <Chrome className="text-slate-300" size={48} />
+                            </span>
+                          )}
+                          {connectorIdentifier === 'metamask' && (
+                            <img
+                              alt="MetaMask"
+                              src="/assets/connectors/metamask.svg"
+                              className="w-[48px] h-[48px]"
+                            />
+                          )}
+                          {connectorIdentifier === 'coinbase' && (
+                            <img
+                              alt="Coinbase Wallet"
+                              src="/assets/connectors/coinbase.svg"
+                              className="w-[48px] h-[48px]"
+                            />
+                          )}
+                          <div className="flex flex-col h-full justify-center flex-1 gap-1 ml-2 max-w-[calc(100%-52px)]">
+                            <span className="block w-full text-left truncate transition-colors text-zinc-300 group-hover:text-white">
+                              {getNameByConnectorIdentifier(
+                                connector.id,
+                                connector.name,
+                              )}
+                            </span>
+                            {isLoading &&
+                              pendingConnector?.id === connector.id && (
+                                <span className="inline-flex items-center w-full gap-1 text-left text-slate-400">
+                                  <Loader2
+                                    className="animate-spin text-slate-400"
+                                    size={16}
+                                  />
+                                  Connecting
+                                </span>
+                              )}
+                          </div>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
 
-                <button className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                {isConnected && (
+                  <div className="flex flex-col items-center w-full gap-2 pb-3">
+                    <span className="mt-4 text-xl font-medium leading-snug text-slate-200">
+                      Wallet Connected!
+                    </span>
+                    <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom w-fit">
+                      <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
+                        <MetaMaskAvatar address={address} size={28} />
+                      </div>
+                      <span className="text-slate-200">
+                        {address.slice(0, 6)}
+                      </span>
+                    </span>
+
+                    <button
+                      className="px-2 mt-2 border rounded-md bg-zinc-800 border-zinc-700 text-zinc-500"
+                      onClick={() => disconnect()}
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300"
+                  disabled={!isConnected}
+                  onClick={() => {
+                    setStage(Stage.CONFIRM_PAYMENT);
+                  }}
+                >
                   Continue
                 </button>
               </div>
             )}
 
-            {isConnected && HAS_INSUFFICIENT_FUNDS && (
-              <>
+            {stage === Stage.CONFIRM_PAYMENT && isConnected && (
+              <div className="flex justify-between w-full p-4">
                 <button
-                  className="absolute px-2 border rounded-md top-4 right-4 bg-zinc-800 border-zinc-700 text-zinc-500"
+                  className="px-2 border rounded-md bg-zinc-800 border-zinc-700 text-zinc-500"
+                  onClick={() => setStage(Stage.SHIPPING_INFO_AND_CONNECT)}
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-2 border rounded-md bg-zinc-800 border-zinc-700 text-zinc-500"
                   onClick={() => disconnect()}
                 >
                   Disconnect
                 </button>
-                <div className="flex flex-col w-full h-full py-6">
-                  <CircleDashed className="mx-auto text-slate-200" size={48} />
-                  <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
-                    Wallet{' '}
-                    <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
-                      <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
-                        <MetaMaskAvatar address={address} size={28} />
-                      </div>
-                      <span>{address.slice(0, 6)}</span>
-                    </span>{' '}
-                    <br />
-                    do not have <br />
-                    enough{' '}
-                    <span
-                      className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
-                      style={{
-                        background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
-                      }}
-                    >
-                      <TokenLogo
-                        className="inline-flex w-8 h-8 -my-3 align-middle"
-                        src={{
-                          token: '/assets/frax.png',
+              </div>
+            )}
+
+            {stage === Stage.CONFIRM_PAYMENT &&
+              HAS_INSUFFICIENT_FUNDS &&
+              isConnected && (
+                <>
+                  <div className="flex flex-col w-full h-full py-6">
+                    <CircleDashed
+                      className="mx-auto text-slate-200"
+                      size={48}
+                    />
+                    <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
+                      Wallet{' '}
+                      <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
+                        <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
+                          <MetaMaskAvatar address={address} size={28} />
+                        </div>
+                        <span>{address.slice(0, 6)}</span>
+                      </span>{' '}
+                      <br />
+                      do not have <br />
+                      enough{' '}
+                      <span
+                        className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-slate-950 rounded-3xl border-zinc-700/40 shadow-zinc-950 align-bottom"
+                        style={{
+                          background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
                         }}
-                        alt={{ token: 'Frax' }}
-                      />
-                      <span>FRAX</span>
-                    </span>
-                  </h2>
+                      >
+                        <TokenLogo
+                          className="inline-flex w-8 h-8 -my-3 align-middle"
+                          src={{
+                            token: '/assets/frax.png',
+                          }}
+                          alt={{ token: 'Frax' }}
+                        />
+                        <span>FRAX</span>
+                      </span>
+                    </h2>
 
-                  <Separator className="my-8" />
+                    <Separator className="my-8" />
 
-                  <Accordion
-                    type="single"
-                    collapsible
-                    defaultValue="swap-to-frax"
-                  >
-                    {/* <AccordionItem value="switch-wallet">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      defaultValue="swap-to-frax"
+                    >
+                      {/* <AccordionItem value="switch-wallet">
                       <AccordionTrigger className="px-6 py-3">
                         <h3 className="text-[20px] font-medium text-slate-300">
                           Switch Wallet
@@ -275,105 +328,105 @@ const PayPage: NextPage = () => {
                       </AccordionContent>
                     </AccordionItem> */}
 
-                    <AccordionItem value="swap-to-frax">
-                      <AccordionTrigger className="px-6 py-3">
-                        <h3 className="text-[20px] font-medium text-slate-300">
-                          Swap to Frax
-                        </h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
-                        {/* <div className="flex flex-col">
+                      <AccordionItem value="swap-to-frax">
+                        <AccordionTrigger className="px-6 py-3">
+                          <h3 className="text-[20px] font-medium text-slate-300">
+                            Swap to Frax
+                          </h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
+                          {/* <div className="flex flex-col">
                   <span>Optimism</span>
                   <span>Balance: $0</span>
                 </div> */}
 
-                        <div className="flex flex-col w-full">
-                          <div className="flex items-center mt-3">
-                            <div
-                              className={clsx(
-                                'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
-                                'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
-                              )}
-                            >
-                              <TokenLogo
-                                src={{
-                                  token: '/assets/eth.png',
-                                  network: '/assets/optimism.png',
-                                }}
-                                alt={{ token: 'Ethereum', network: 'Optimism' }}
-                              />
-                              <div className="mt-1 flex flex-col items-center gap-0.5">
-                                <span className="inline-block leading-tight text-slate-300">
-                                  Ethereum
-                                </span>
-                                <span className="inline-block leading-tight text-slate-200">
-                                  0.1 ETH
-                                </span>
-                              </div>
-                              <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
-                                Change
-                              </span>
-                            </div>
-
-                            <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
-                              <ChevronsRight />
-                            </div>
-
-                            <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
-                              <TokenLogo
-                                src={{
-                                  token: '/assets/frax.png',
-                                  network: '/assets/optimism.png',
-                                }}
-                                alt={{ token: 'Frax', network: 'Optimism' }}
-                              />
-                              <div className="mt-1 flex flex-col items-center gap-0.5">
-                                <span className="inline-block leading-tight text-slate-400">
-                                  Frax
-                                </span>
-                                <span className="inline-block leading-tight text-slate-200">
-                                  50.18 FRAX
+                          <div className="flex flex-col w-full">
+                            <div className="flex items-center mt-3">
+                              <div
+                                className={clsx(
+                                  'flex flex-col items-center py-3 flex-1 gap-1 bg-zinc-700 rounded-xl relative transition-all cursor-pointer',
+                                  'hover:bg-zinc-600/80 hover:translate-y-[-16px] hover:backdrop-blur-sm',
+                                )}
+                              >
+                                <TokenLogo
+                                  src={{
+                                    token: '/assets/eth.png',
+                                    network: '/assets/optimism.png',
+                                  }}
+                                  alt={{
+                                    token: 'Ethereum',
+                                    network: 'Optimism',
+                                  }}
+                                />
+                                <div className="mt-1 flex flex-col items-center gap-0.5">
+                                  <span className="inline-block leading-tight text-slate-300">
+                                    Ethereum
+                                  </span>
+                                  <span className="inline-block leading-tight text-slate-200">
+                                    0.1 ETH
+                                  </span>
+                                </div>
+                                <span className="bg-zinc-500/20 backdrop-blur-sm text-zinc-50/80 text-sm font-semibold inline-block leading-tight absolute right-[-6px] top-[-6px] rounded-xl px-2 py-1 shadow-xl shadow-black/20">
+                                  Change
                                 </span>
                               </div>
+
+                              <div className="w-8 h-8 mx-[-12px] z-10 rounded-full bg-zinc-600 flex items-center justify-center text-zinc-400 shadow">
+                                <ChevronsRight />
+                              </div>
+
+                              <div className="flex flex-col items-center flex-1 gap-1 py-3 bg-zinc-800 rounded-xl">
+                                <TokenLogo
+                                  src={{
+                                    token: '/assets/frax.png',
+                                    network: '/assets/optimism.png',
+                                  }}
+                                  alt={{ token: 'Frax', network: 'Optimism' }}
+                                />
+                                <div className="mt-1 flex flex-col items-center gap-0.5">
+                                  <span className="inline-block leading-tight text-slate-400">
+                                    Frax
+                                  </span>
+                                  <span className="inline-block leading-tight text-slate-200">
+                                    50.18 FRAX
+                                  </span>
+                                </div>
+                              </div>
                             </div>
+
+                            <button className="w-full py-3 mt-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                              Continue
+                            </button>
                           </div>
+                        </AccordionContent>
+                      </AccordionItem>
 
-                          <button className="w-full py-3 mt-3 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
-                            Continue
-                          </button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                      <AccordionItem value="onramp-to-frax">
+                        <AccordionTrigger className="px-6 py-3">
+                          <h3 className="text-[20px] font-medium text-slate-300">
+                            Onramp to Frax
+                          </h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
+                          <ul className="flex flex-col gap-2 mt-3">
+                            <OnrampCard
+                              src="/assets/stably.png"
+                              name="Stably"
+                            />
+                            <OnrampCard
+                              src="/assets/transak.svg"
+                              name="Transak"
+                            />
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                </>
+              )}
 
-                    <AccordionItem value="onramp-to-frax">
-                      <AccordionTrigger className="px-6 py-3">
-                        <h3 className="text-[20px] font-medium text-slate-300">
-                          Onramp to Frax
-                        </h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pt-3 pb-5 transform-gpu">
-                        <ul className="flex flex-col gap-2 mt-3">
-                          <OnrampCard src="/assets/stably.png" name="Stably" />
-                          <OnrampCard
-                            src="/assets/transak.svg"
-                            name="Transak"
-                          />
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-              </>
-            )}
-
-            {isConnected && !HAS_INSUFFICIENT_FUNDS && (
+            {stage === Stage.CONFIRM_PAYMENT && !HAS_INSUFFICIENT_FUNDS && (
               <>
-                <button
-                  className="absolute px-2 border rounded-md top-4 right-4 bg-zinc-800 border-zinc-700 text-zinc-500"
-                  onClick={() => disconnect()}
-                >
-                  Disconnect
-                </button>
                 <div className="flex flex-col w-full h-full py-6">
                   <CircleDashed className="mx-auto text-slate-200" size={48} />
                   <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
@@ -388,6 +441,10 @@ const PayPage: NextPage = () => {
                   </h2>
 
                   <Separator className="my-8" />
+
+                  <button className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                    Pay
+                  </button>
                 </div>
               </>
             )}
