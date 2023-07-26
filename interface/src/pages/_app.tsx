@@ -1,9 +1,17 @@
-import { SessionProvider, signIn, signOut, useSession } from 'next-auth/react';
+import {
+  SessionProvider,
+  getCsrfToken,
+  signIn,
+  signOut,
+  useSession,
+} from 'next-auth/react';
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect } from 'react';
-import { WagmiConfig, useAccount } from 'wagmi';
+import React, { useEffect, useRef } from 'react';
+import { SiweMessage } from 'siwe';
+import { WagmiConfig, useAccount, useSignMessage } from 'wagmi';
+import { optimism } from 'wagmi/chains';
 
 import { GlobalStyle } from '@/components/GlobalStyle';
 import { NavigationBar } from '@/components/NavigationBar';
@@ -22,7 +30,10 @@ const Web3Provider: React.FC = () => {
   const router = useRouter();
   const account = useAccount();
   const session = useSession();
+  const { signMessageAsync } = useSignMessage();
 
+  console.log({ session });
+  const isSigningRef = useRef<boolean>(false);
   useEffect(() => {
     if (router.pathname === PAYMENT_PAGE_PATH) {
       return;
@@ -30,11 +41,50 @@ const Web3Provider: React.FC = () => {
 
     const handleLogin = async () => {
       try {
-        if (account.isConnected && account.address) {
-          signIn('credentials', {
-            address: account.address,
-            callbackUrl: '/home',
-          });
+        if (
+          !isSameAddress(
+            (session?.data?.user as any)?.address,
+            account.address,
+          ) &&
+          account.isConnected &&
+          account.address
+        ) {
+          if (isSigningRef.current) {
+            return;
+          }
+          isSigningRef.current = true;
+          const signLogin = async () => {
+            try {
+              const message = new SiweMessage({
+                domain: window.location.host,
+                uri: window.location.origin,
+                version: '1',
+                address: account.address,
+                statement: process.env.NEXT_PUBLIC_SIGNIN_MESSAGE,
+                nonce: await getCsrfToken(),
+                chainId: optimism.id,
+              });
+
+              const signedMessage = await signMessageAsync({
+                message: message.prepareMessage(),
+              });
+
+              const response = await signIn('web3', {
+                message: JSON.stringify(message),
+                signedMessage,
+                redirect: true,
+                callbackUrl: '/home',
+              });
+              if (response?.error) {
+                console.log('Error occured:', response.error);
+              }
+            } catch (error) {
+              console.log('Error Occured', error);
+            }
+            isSigningRef.current = false;
+          };
+
+          await signLogin();
           return;
         }
       } catch (error) {
@@ -61,7 +111,7 @@ const Web3Provider: React.FC = () => {
     if (session.status === 'unauthenticated') {
       handleLogin();
     }
-  }, [account.isConnected, account.address, session, router]);
+  }, [account.isConnected, account.address, session, router, signMessageAsync]);
 
   return null;
 };

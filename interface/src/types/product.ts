@@ -17,7 +17,8 @@ export type Product = {
   description: string;
   imageURL: string;
   enabled: boolean;
-  ownerAddress: string;
+  merchantAddress: string;
+  paymentTokenAddress: string;
 };
 
 export const formItemSchema = z.object({
@@ -37,5 +38,6 @@ export const productSchema = z.object({
   description: z.string(),
   imageURL: z.string(),
   enabled: z.boolean(),
-  ownerAddress: z.string(),
+  merchantAddress: z.string(),
+  paymentTokenAddress: z.string(),
 });

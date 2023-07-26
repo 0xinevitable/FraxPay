@@ -31,15 +31,10 @@ import { Input, InputWithLabel } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Separator } from '@/components/ui/separator';
+import { Contracts } from '@/constants/contracts';
 import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 import { wagmiConnectors } from '@/lib/web3';
-
-const Contracts = {
-  FraxPayCore: '0x986ec2aeE73E21B28b29A2E040DDFfd839F6F07d',
-  FraxToken: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
-  FraxSwapRouterV2: '0xB9A55F455e46e8D717eEA5E47D2c449416A0437F',
-} as const;
 
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),

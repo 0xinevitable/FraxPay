@@ -1,8 +1,11 @@
 /* eslint-disable jsx-a11y/alt-text */
 
 /* eslint-disable @next/next/no-img-element */
+import axios from 'axios';
 import Haikunator from 'haikunator';
 import { GetServerSideProps, NextPage } from 'next';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 import title from 'title';
@@ -16,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Contracts } from '@/constants/contracts';
 import {
   Product,
   ShippingInformationForm,
@@ -162,8 +166,10 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
     [],
   );
 
+  const router = useRouter();
   const { address } = useAccount();
-  const onClickCreate = useCallback(() => {
+  const session = useSession();
+  const onClickCreate = useCallback(async () => {
     const _price = price || '0';
     const product: Product = {
       name,
@@ -172,10 +178,31 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
       description,
       imageURL,
       enabled: true,
-      ownerAddress: address,
+      merchantAddress: address,
+      paymentTokenAddress: Contracts.FraxToken.toLowerCase(),
     };
     console.log(product);
-  }, [price, name, shippingInfoForm, imageURL, address, description]);
+
+    const { data } = await axios.post<{ productID }>(
+      '/api/create',
+      { product },
+      {
+        headers: {
+          Authorization: `Bearer ${(session.data as any).accessToken}`,
+        },
+      },
+    );
+    router.push(`/pay/${data.productID}`);
+  }, [
+    price,
+    name,
+    shippingInfoForm,
+    description,
+    imageURL,
+    address,
+    session.data,
+    router,
+  ]);
 
   return (
     <div className="flex flex-col mt-[64px]">

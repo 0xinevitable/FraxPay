@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi';
 
 import {
   NavigationMenu,
@@ -10,7 +10,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
-import { shortenAddress } from '@/lib/address';
 import { wagmiConnectors } from '@/lib/web3';
 
 import { ConnectButton } from './ConnectButton';
@@ -56,7 +55,9 @@ const CurrentAddress: React.FC<{ onClickConnect: () => void }> = ({
 
 export const NavigationBar: React.FC = () => {
   const { connectAsync: connect } = useConnect();
+  const { address } = useAccount();
   const [isWalletModalOpen, setWalletModalOpen] = useState<boolean>(false);
+  const { signMessageAsync } = useSignMessage();
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full px-6 py-4 text-white bg-zinc-950">
