@@ -362,7 +362,7 @@ const CheckboxItem: React.FC<CheckboxItemProps> = ({
         {name}
       </label>
 
-      <div className="flex">
+      <div className="flex gap-1">
         <Checkbox
           id={`${id}-required`}
           checked={required}
