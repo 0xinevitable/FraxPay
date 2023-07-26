@@ -11,7 +11,7 @@ import {
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount, useConnect, useDisconnect, usePublicClient } from 'wagmi';
 import { useWalletClient } from 'wagmi';
 
@@ -62,8 +62,6 @@ enum Stage {
   CONFIRM_PAYMENT,
   SUCCESS,
 }
-
-const HAS_INSUFFICIENT_FUNDS = false;
 
 const PayPage: NextPage = () => {
   const router = useRouter();
@@ -197,8 +195,55 @@ const PayPage: NextPage = () => {
   useEffect(() => {
     setCachedOrderID(null);
   }, [shippingInfo]);
+
+  const hasFraxAllowance = useMemo(() => {
+    if (!fraxAllowance || !product?.price) {
+      return false;
+    }
+    return (
+      BigInt(fraxAllowance) >=
+      formattedDraftToBigInt(product.price, 18) / 10000n
+    );
+  }, [fraxAllowance, product?.price]);
+
+  const hasInsufficientFunds = useMemo(() => {
+    if (!fraxBalance || !product?.price) {
+      return false;
+    }
+
+    return (
+      BigInt(fraxBalance) < formattedDraftToBigInt(product.price, 18) / 10000n
+    );
+  }, [fraxBalance, product?.price]);
+
   const onClickPay = useCallback(async () => {
     if (!address || !product?.price || !product?.merchantAddress) {
+      return;
+    }
+    if (!hasFraxAllowance) {
+      const { request } = await publicClient.simulateContract({
+        account: address,
+        address: Contracts.FraxToken,
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'spender', type: 'address' },
+              { internalType: 'uint256', name: 'amount', type: 'uint256' },
+            ],
+            name: 'approve',
+            outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        functionName: 'approve',
+        args: [
+          Contracts.FraxPayCore,
+          formattedDraftToBigInt(product.price, 18) / 10000n,
+        ],
+      });
+      await walletClient?.writeContract(request);
+      await fetchUserState();
       return;
     }
 
@@ -218,27 +263,23 @@ const PayPage: NextPage = () => {
         {
           inputs: [
             { internalType: 'address', name: 'recipient', type: 'address' },
-            // { internalType: 'address', name: 'tokenAddress', type: 'address' },
+            { internalType: 'address', name: 'tokenAddress', type: 'address' },
             { internalType: 'uint256', name: 'amount', type: 'uint256' },
             { internalType: 'string', name: 'identifier', type: 'string' },
           ],
-          // name: 'erc20Payment',
-          name: 'nativePayment',
+          name: 'erc20Payment',
           outputs: [],
-          // stateMutability: 'nonpayable',
-          stateMutability: 'payable',
+          stateMutability: 'nonpayable',
           type: 'function',
         },
       ],
-      functionName: 'nativePayment',
+      functionName: 'erc20Payment',
       args: [
         product.merchantAddress as `0x${string}`,
-        // Contracts.FraxToken,
+        Contracts.FraxToken,
         formattedDraftToBigInt(product?.price || '0', 18) / 10000n, // amount
         orderID || '',
       ],
-      // only native
-      value: formattedDraftToBigInt(product?.price || '0', 18) / 10000n,
     });
     const hash = await walletClient?.writeContract(request);
     setCachedOrderID(null);
@@ -253,13 +294,15 @@ const PayPage: NextPage = () => {
     setStage(Stage.SUCCESS);
   }, [
     address,
-    cachedOrderID,
-    product?.merchantAddress,
     product?.price,
-    productID,
+    product?.merchantAddress,
+    hasFraxAllowance,
+    cachedOrderID,
     publicClient,
-    shippingInfo,
     walletClient,
+    productID,
+    fetchUserState,
+    shippingInfo,
   ]);
 
   if (!product) {
@@ -459,7 +502,7 @@ const PayPage: NextPage = () => {
             )}
 
             {stage === Stage.CONFIRM_PAYMENT &&
-              HAS_INSUFFICIENT_FUNDS &&
+              hasInsufficientFunds &&
               isConnected && (
                 <>
                   <div className="flex flex-col w-full h-full py-6">
@@ -610,7 +653,7 @@ const PayPage: NextPage = () => {
                 </>
               )}
 
-            {stage === Stage.CONFIRM_PAYMENT && !HAS_INSUFFICIENT_FUNDS && (
+            {stage === Stage.CONFIRM_PAYMENT && !hasInsufficientFunds && (
               <>
                 <div className="flex flex-col w-full h-full py-6">
                   <CircleDashed className="mx-auto text-slate-200" size={48} />
@@ -648,7 +691,7 @@ const PayPage: NextPage = () => {
                       className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300"
                       onClick={onClickPay}
                     >
-                      Pay
+                      {hasFraxAllowance ? 'Pay' : 'Approve $FRAX'}
                     </button>
                   </div>
                 </div>

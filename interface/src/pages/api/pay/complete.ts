@@ -76,9 +76,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
   });
 
-  // FIXME: Fix event name
   const event = events.find((event) => {
-    return event && event.name === 'NativePayment';
+    return event && event.name === 'ERC20Payment';
   });
   console.log({ event });
 
@@ -89,7 +88,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  if (event.args[3] !== order.id) {
+  if (event.args[4] !== order.id) {
     res
       .status(400)
       .json({ success: false, message: 'Invalid tx hash; Order ID mismatch' });
