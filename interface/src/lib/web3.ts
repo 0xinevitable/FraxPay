@@ -11,7 +11,8 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { publicProvider } from 'wagmi/providers/public';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, arbitrumGoerli, optimism, optimismGoerli],
+  // [arbitrum, arbitrumGoerli, optimism, optimismGoerli],
+  [optimism],
   [publicProvider()],
 );
 

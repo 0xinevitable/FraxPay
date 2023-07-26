@@ -15,6 +15,7 @@ import {
   usePrepareContractWrite,
   usePublicClient,
 } from 'wagmi';
+import { useWalletClient } from 'wagmi';
 
 import { ConnectButton } from '@/components/ConnectButton';
 import { NoSSR } from '@/components/NoSSR';
@@ -37,7 +38,18 @@ import { Contracts } from '@/constants/contracts';
 import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 import { wagmiConnectors } from '@/lib/web3';
+import { OrderShippingInfo } from '@/types/order';
 import { Product, ShippingInformationFormID } from '@/types/product';
+
+export const formattedDraftToBigInt = (draft: string, decimals: number) => {
+  try {
+    const [whole, decimal = ''] = draft.split('.');
+    const filledDecimal = (decimal + '0'.repeat(decimals)).slice(0, decimals);
+    return BigInt(whole + filledDecimal);
+  } catch {
+    return BigInt(0);
+  }
+};
 
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
@@ -60,7 +72,6 @@ const PayPage: NextPage = () => {
   const { connect, error, isLoading, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
   const productID = router.query.productID as string;
-  const [orderID, setOrderID] = useState<string>('');
 
   const [isCountryInputOpen, setIsCountryInputOpen] = useState(false);
   const [stage, setStage] = useState<Stage>(Stage.SHIPPING_INFO_AND_CONNECT);
@@ -72,6 +83,7 @@ const PayPage: NextPage = () => {
   }, [isConnected, stage]);
 
   const publicClient = usePublicClient({ chainId: optimism.id });
+  const { data: walletClient } = useWalletClient({ chainId: optimism.id });
 
   const [product, setProduct] = useState<Product | null>(null);
   useEffect(() => {
@@ -86,9 +98,7 @@ const PayPage: NextPage = () => {
     fetch();
   }, [router, productID]);
 
-  const [shippingInfo, setShippingInfo] = useState<
-    Record<ShippingInformationFormID | 'zip' | 'city' | 'country', string>
-  >({
+  const [shippingInfo, setShippingInfo] = useState<OrderShippingInfo>({
     name: '',
     email: '',
     city: '',
@@ -184,31 +194,72 @@ const PayPage: NextPage = () => {
     fetchUserState();
   }, [fetchUserState]);
 
-  const { config: erc20PaymentConfig } = usePrepareContractWrite({
-    address: Contracts.FraxPayCore,
-    abi: [
-      {
-        inputs: [
-          { internalType: 'address', name: 'recipient', type: 'address' },
-          { internalType: 'address', name: 'tokenAddress', type: 'address' },
-          { internalType: 'uint256', name: 'amount', type: 'uint256' },
-          { internalType: 'string', name: 'identifier', type: 'string' },
-        ],
-        name: 'erc20Payment',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
-    ],
-    functionName: 'erc20Payment',
-    args: [
-      (address || '') as `0x${string}`,
-      Contracts.FraxToken,
-      60n * 10n ** 18n, // amount
+  const [cachedOrderID, setCachedOrderID] = useState<string | null>(null);
+  useEffect(() => {
+    setCachedOrderID(null);
+  }, [shippingInfo]);
+  const onClickPay = useCallback(async () => {
+    if (!address || !product?.price || !product?.merchantAddress) {
+      return;
+    }
+
+    let orderID: string | null = cachedOrderID;
+    if (!orderID) {
+      const { data } = await axios.post('/pay/prepare', {
+        productID,
+        shippingInfo,
+      });
+      orderID = data.orderID;
+    }
+    setCachedOrderID(orderID);
+    const { request } = await publicClient.simulateContract({
+      account: address,
+      address: Contracts.FraxPayCore,
+      abi: [
+        {
+          inputs: [
+            { internalType: 'address', name: 'recipient', type: 'address' },
+            // { internalType: 'address', name: 'tokenAddress', type: 'address' },
+            { internalType: 'uint256', name: 'amount', type: 'uint256' },
+            { internalType: 'string', name: 'identifier', type: 'string' },
+          ],
+          // name: 'erc20Payment',
+          name: 'nativePayment',
+          outputs: [],
+          // stateMutability: 'nonpayable',
+          stateMutability: 'payable',
+          type: 'function',
+        },
+      ],
+      functionName: 'nativePayment',
+      args: [
+        product.merchantAddress as `0x${string}`,
+        // Contracts.FraxToken,
+        formattedDraftToBigInt(product?.price || '0', 18) / 10000n, // amount
+        orderID || '',
+      ],
+      // only native
+      value: formattedDraftToBigInt(product?.price || '0', 18) / 10000n,
+    });
+    const hash = await walletClient?.writeContract(request);
+    setCachedOrderID(null);
+
+    const { data } = await axios.post('/api/pay/complete', {
+      productID,
       orderID,
-    ],
-  });
-  const { write: erc20Payment } = useContractWrite(erc20PaymentConfig);
+      txHash: hash,
+    });
+    console.log(data);
+  }, [
+    address,
+    cachedOrderID,
+    product?.merchantAddress,
+    product?.price,
+    productID,
+    publicClient,
+    shippingInfo,
+    walletClient,
+  ]);
 
   if (!product) {
     // TODO: Loading
@@ -321,7 +372,7 @@ const PayPage: NextPage = () => {
                 )}
 
                 <PhoneInput
-                  phoneNumber={shippingInfo.phone}
+                  phoneNumber={shippingInfo.phone || ''}
                   setPhoneNumber={(value) =>
                     setShippingInfo((prev) => ({ ...prev, phone: value }))
                   }
@@ -591,7 +642,10 @@ const PayPage: NextPage = () => {
 
                   <Separator className="my-8" />
 
-                  <button className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300">
+                  <button
+                    className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300"
+                    onClick={onClickPay}
+                  >
                     Pay
                   </button>
                 </div>

@@ -2,8 +2,9 @@ import { Redis } from '@upstash/redis';
 import { Interface, JsonRpcProvider } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+import { FRAXPAY_CORE_ABI } from '@/lib/abi';
 // FIXME: Order definition path
-import { Order } from './prepare';
+import { Order } from '@/types/order';
 
 const redis = new Redis({
   url: process.env.UPSTASH_URL as string,
@@ -58,9 +59,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  // FIXME:
-  const abi: any[] = [];
-  const iface = new Interface(abi);
+  const iface = new Interface(FRAXPAY_CORE_ABI);
   const events = receipt.logs.map((log) => {
     try {
       return iface.parseLog(log as any);
@@ -71,8 +70,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // FIXME: Fix event name
   const event = events.find((event) => {
-    return event && event.name === 'Payment';
+    return event && event.name === 'NativePayment';
   });
+  console.log({ event });
 
   if (!event) {
     res

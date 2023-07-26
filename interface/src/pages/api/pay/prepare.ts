@@ -2,15 +2,12 @@ import { Redis } from '@upstash/redis';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Order, orderSchema } from '@/types/order';
+
 const redis = new Redis({
   url: process.env.UPSTASH_URL as string,
   token: process.env.UPSTASH_TOKEN as string,
 });
-
-export type Order = {
-  id: string;
-  txHash: string | null;
-};
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -23,10 +20,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const orderID = uuidv4();
 
   const key = `payment:${productID}:order:${orderID}`;
+
   const order: Order = {
     id: orderID,
+    shippingInfo: req.body.shippingInfo,
     txHash: null,
   };
+
+  try {
+    orderSchema.parse(order);
+  } catch (e: any) {
+    res.status(400).json({
+      success: false,
+      message: `Bad request; ${e.message}`,
+    });
+    return;
+  }
 
   try {
     await redis.set(key, JSON.stringify(order));
