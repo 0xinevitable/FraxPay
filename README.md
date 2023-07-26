@@ -7,15 +7,15 @@
 3. Payment Links with Easy-to-use Customer Onboarding
 4. Frontend Widgets/SDK for FraxPay and Fraxswap
 
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/landing.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/list.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/create.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-1.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-2.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/connect-wallet.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png)
-![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/done.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/landing.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/list.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/create.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-1.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-2.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/connect-wallet.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png?v=2)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/done.png?v=2)
 
 ## 🔴 Deployments
 

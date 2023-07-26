@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.9.2",
-    "@openzeppelin/contracts-upgradeable": "^4.9.2"
+    "@openzeppelin/contracts-upgradeable": "^4.9.2",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.1",
