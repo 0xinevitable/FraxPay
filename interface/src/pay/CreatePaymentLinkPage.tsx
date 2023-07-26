@@ -178,12 +178,12 @@ const CreatePaymentLinkPage: NextPage<Props> = (props) => {
       description,
       imageURL,
       enabled: true,
-      merchantAddress: address,
+      merchantAddress: (address || '') as `0x${string}`,
       paymentTokenAddress: Contracts.FraxToken.toLowerCase(),
     };
     console.log(product);
 
-    const { data } = await axios.post<{ productID }>(
+    const { data } = await axios.post<{ productID: string }>(
       '/api/create',
       { product },
       {

@@ -24,7 +24,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // validate product with zod
   try {
     productSchema.parse(product);
-  } catch (e) {
+  } catch (e: any) {
     res.status(400).json({
       success: false,
       message: `Bad request; ${e.message}`,

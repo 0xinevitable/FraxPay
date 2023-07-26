@@ -36,8 +36,8 @@ const CurrentAddress: React.FC<{ onClickConnect: () => void }> = ({
       {isConnected ? (
         <div className="flex items-center justify-center gap-2 px-2 py-2 rounded-lg bg-zinc-900">
           <span className="h-[26px] pl-0.5 pr-2 inline-flex items-center gap-1.5 leading-none align-bottom border shadow-lg text-md bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950">
-            <MetaMaskAvatar address={address} size={20} />
-            <span>{address.slice(0, 6)}</span>
+            <MetaMaskAvatar address={address || ''} size={20} />
+            <span>{address?.slice(0, 6)}</span>
           </span>
           <button
             className="px-2 border rounded-md bg-zinc-800 border-zinc-700 text-zinc-500"

@@ -55,6 +55,7 @@
     "@types/react": "^18.2.7",
     "@types/react-dom": "^18.2.4",
     "@types/title": "^3.4.1",
+    "@types/uuid": "^9.0.2",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.41.0",
     "eslint-config-next": "^13.4.4",

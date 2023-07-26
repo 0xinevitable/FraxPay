@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  const productID = req.body.productID;
+  const productID = req.query.productID;
   let key = `product:${productID}`;
 
   const doc = await redis.get(key);

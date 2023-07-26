@@ -1,9 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import { optimism } from '@wagmi/chains';
+import axios from 'axios';
 import clsx from 'clsx';
 import { ChevronsRight, Chrome, CircleDashed, Loader2 } from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   useAccount,
@@ -35,6 +37,7 @@ import { Contracts } from '@/constants/contracts';
 import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 import { wagmiConnectors } from '@/lib/web3';
+import { Product } from '@/types/product';
 
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
@@ -52,10 +55,12 @@ enum Stage {
 const HAS_INSUFFICIENT_FUNDS = false;
 
 const PayPage: NextPage = () => {
+  const router = useRouter();
   const { connector: activeConnector, isConnected, address } = useAccount();
   const { connect, error, isLoading, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
-  const orderID = '';
+  const productID = router.query.productID as string;
+  const [orderID, setOrderID] = useState<string>('');
 
   const [isOpen, setIsOpen] = useState(false);
   // Default this to a country's code to preselect it
@@ -71,6 +76,19 @@ const PayPage: NextPage = () => {
   }, [isConnected, stage]);
 
   const publicClient = usePublicClient({ chainId: optimism.id });
+
+  const [product, setProduct] = useState<Product | null>(null);
+  useEffect(() => {
+    if (!productID) {
+      return;
+    }
+    const fetch = async () => {
+      const { data } = await axios.get(`/api/pay/${productID}`);
+      console.log(data);
+      setProduct(data.product);
+    };
+    fetch();
+  }, [router, productID]);
 
   const [fraxBalance, setFraxBalance] = useState<string | null>(null);
   const [fraxAllowance, setFraxAllowance] = useState<string | null>(null);
@@ -120,8 +138,8 @@ const PayPage: NextPage = () => {
 
     console.log(results);
 
-    setFraxBalance(results[0].result.toString());
-    setFraxAllowance(results[1].result.toString());
+    setFraxBalance(results[0].result?.toString() || '0');
+    setFraxAllowance(results[1].result?.toString() || '0');
   }, [address, publicClient]);
 
   useEffect(() => {
@@ -144,9 +162,9 @@ const PayPage: NextPage = () => {
         type: 'function',
       },
     ],
-    functionName: 'mint',
+    functionName: 'erc20Payment',
     args: [
-      address,
+      (address || '') as `0x${string}`,
       Contracts.FraxToken,
       60n * 10n ** 18n, // amount
       orderID,
@@ -154,15 +172,27 @@ const PayPage: NextPage = () => {
   });
   const { write: erc20Payment } = useContractWrite(erc20PaymentConfig);
 
+  if (!product) {
+    // TODO: Loading
+    return (
+      <div className="flex items-center justify-center w-screen h-screen">
+        <Loader2
+          className="mx-auto my-20 animate-spin text-slate-200"
+          size={48}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full bg-zinc-950">
       <div className="container flex h-full max-w-5xl min-h-screen gap-8 py-[64px] mx-auto px-7">
         <div className="w-full max-w-sm">
           <ProductCard
-            name={'Test Artifact — .ERA .Max 002'}
-            description="TEST ARTIFACT ™ — Experimental brand in Seoul."
-            priceDisplay={'60'}
-            imageURL="/assets/eva-max-002.jpg"
+            name={product.name}
+            description={product.description}
+            priceDisplay={product.price}
+            imageURL={product.imageURL}
             imageRatio={1 / 1}
           />
         </div>
@@ -201,9 +231,9 @@ const PayPage: NextPage = () => {
                       open={isOpen}
                       onToggle={() => setIsOpen(!isOpen)}
                       onChange={setCountry}
-                      selectedValue={COUNTRIES.find(
-                        (option) => option.value === country,
-                      )}
+                      selectedValue={
+                        COUNTRIES.find((option) => option.value === country)!
+                      }
                     />
                   </div>
                 </div>
@@ -265,10 +295,10 @@ const PayPage: NextPage = () => {
                     </span>
                     <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom w-fit">
                       <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
-                        <MetaMaskAvatar address={address} size={28} />
+                        <MetaMaskAvatar address={address || ''} size={28} />
                       </div>
                       <span className="text-slate-200">
-                        {address.slice(0, 6)}
+                        {address?.slice(0, 6)}
                       </span>
                     </span>
 
@@ -323,9 +353,9 @@ const PayPage: NextPage = () => {
                       Wallet{' '}
                       <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
                         <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
-                          <MetaMaskAvatar address={address} size={28} />
+                          <MetaMaskAvatar address={address || ''} size={28} />
                         </div>
-                        <span>{address.slice(0, 6)}</span>
+                        <span>{address?.slice(0, 6)}</span>
                       </span>{' '}
                       <br />
                       do not have <br />
@@ -474,7 +504,7 @@ const PayPage: NextPage = () => {
                         background: `linear-gradient(135deg, #030616 0%, #000E1F 32.73%, #000 48.96%, #16031B 67.88%, #030616 100%)`,
                       }}
                     >
-                      $43
+                      {!product?.price ? '$-' : `$${product.price}`}
                       <TokenLogo
                         className="inline-flex w-8 h-8 -my-3 align-middle"
                         src={{
@@ -487,9 +517,9 @@ const PayPage: NextPage = () => {
                     Wallet{' '}
                     <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom">
                       <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
-                        <MetaMaskAvatar address={address} size={28} />
+                        <MetaMaskAvatar address={address || ''} size={28} />
                       </div>
-                      <span>{address.slice(0, 6)}</span>
+                      <span>{address?.slice(0, 6)}</span>
                     </span>{' '}
                   </h2>
 

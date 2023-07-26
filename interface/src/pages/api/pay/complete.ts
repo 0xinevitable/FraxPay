@@ -24,7 +24,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const productID = req.body.productID;
   const orderID = req.body.orderID;
   const key = `payment:${productID}:order:${orderID}`;
-  const doc: string = await redis.get(key);
+  const doc = await redis.get(key);
   if (!doc) {
     res.status(404).json({ success: false, message: 'Not found' });
     return;
@@ -35,7 +35,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (typeof doc === 'string') {
       order = JSON.parse(doc);
     } else {
-      order = doc;
+      order = doc as any;
     }
   } catch (e) {
     console.log(e);
@@ -58,7 +58,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  const abi = [];
+  // FIXME:
+  const abi: any[] = [];
   const iface = new Interface(abi);
   const events = receipt.logs.map((log) => {
     try {

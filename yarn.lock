@@ -3620,6 +3620,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^9.0.2":
+  version: 9.0.2
+  resolution: "@types/uuid@npm:9.0.2"
+  checksum: 1754bcf3444e1e3aeadd6e774fc328eb53bc956665e2e8fb6ec127aa8e1f43d9a224c3d22a9a6233dca8dd81a12dc7fed4d84b8876dd5ec82d40f574f7ff8b68
+  languageName: node
+  linkType: hard
+
 "@types/ws@npm:^7.4.4":
   version: 7.4.7
   resolution: "@types/ws@npm:7.4.7"
@@ -8775,6 +8782,7 @@ __metadata:
     "@types/react": ^18.2.7
     "@types/react-dom": ^18.2.4
     "@types/title": ^3.4.1
+    "@types/uuid": ^9.0.2
     "@upstash/redis": ^1.22.0
     autoprefixer: ^10.4.14
     axios: ^1.4.0
