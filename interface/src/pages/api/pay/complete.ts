@@ -11,7 +11,6 @@ const redis = new Redis({
   token: process.env.UPSTASH_TOKEN as string,
 });
 
-
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -19,7 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const provider = new JsonRpcProvider(
-    `https://opt-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL}`,
+    `https://opt-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_OPTIMISM_ALCHEMY_API_KEY}`,
   );
 
   // 들어온 order id로 쿼리, 없으면 404

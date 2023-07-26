@@ -7,14 +7,14 @@
 3. Payment Links with Easy-to-use Customer Onboarding
 4. Frontend Widgets/SDK for FraxPay and Fraxswap
 
-![](.github/assets/landing.png)
-![](.github/assets/list.png)
-![](.github/assets/create.png)
-![](.github/assets/shipping-connect-1.png)
-![](.github/assets/shipping-connect-2.png)
-![](.github/assets/connect-wallet.png)
-![](.github/assets/insufficient-amount-swap.png)
-![](.github/assets/insufficient-amount-onramp.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/landing.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/list.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/create.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-1.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-2.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/connect-wallet.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png)
 
 ## 🔴 Deployments
 
@@ -43,7 +43,7 @@ NEXT_AUTH_SECRET=
 UPSTASH_URL=
 UPSTASH_TOKEN=
 NEXT_PUBLIC_SIGNIN_MESSAGE="Sign In to FraxPay"
-NEXT_PUBLIC_OPTIMISM_RPC_URL=
+NEXT_PUBLIC_OPTIMISM_ALCHEMY_API_KEY=
 ```
 
 ### Run!
