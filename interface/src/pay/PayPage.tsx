@@ -1,10 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
+import { optimism } from '@wagmi/chains';
 import clsx from 'clsx';
 import { ChevronsRight, Chrome, CircleDashed, Loader2 } from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  useAccount,
+  useConnect,
+  useContractWrite,
+  useDisconnect,
+  usePrepareContractWrite,
+  usePublicClient,
+} from 'wagmi';
 
 import { ConnectButton } from '@/components/ConnectButton';
 import { NoSSR } from '@/components/NoSSR';
@@ -27,6 +35,12 @@ import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 import { wagmiConnectors } from '@/lib/web3';
 
+const Contracts = {
+  FraxPayCore: '0x986ec2aeE73E21B28b29A2E040DDFfd839F6F07d',
+  FraxToken: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
+  FraxSwapRouterV2: '0xB9A55F455e46e8D717eEA5E47D2c449416A0437F',
+} as const;
+
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
   {
@@ -46,6 +60,7 @@ const PayPage: NextPage = () => {
   const { connector: activeConnector, isConnected, address } = useAccount();
   const { connect, error, isLoading, pendingConnector } = useConnect();
   const { disconnect } = useDisconnect();
+  const orderID = '';
 
   const [isOpen, setIsOpen] = useState(false);
   // Default this to a country's code to preselect it
@@ -59,6 +74,90 @@ const PayPage: NextPage = () => {
       setStage(Stage.SHIPPING_INFO_AND_CONNECT);
     }
   }, [isConnected, stage]);
+
+  const publicClient = usePublicClient({ chainId: optimism.id });
+
+  const [fraxBalance, setFraxBalance] = useState<string | null>(null);
+  const [fraxAllowance, setFraxAllowance] = useState<string | null>(null);
+  const fetchUserState = useCallback(async () => {
+    if (!address) {
+      return;
+    }
+    const results = await publicClient.multicall({
+      contracts: [
+        {
+          functionName: 'balanceOf',
+          abi: [
+            {
+              constant: true,
+              inputs: [
+                { internalType: 'address', name: 'owner', type: 'address' },
+              ],
+              name: 'balanceOf',
+              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+              payable: false,
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          address: Contracts.FraxToken,
+          args: [address],
+        },
+        {
+          functionName: 'allowance',
+          abi: [
+            {
+              inputs: [
+                { internalType: 'address', name: 'owner', type: 'address' },
+                { internalType: 'address', name: 'spender', type: 'address' },
+              ],
+              name: 'allowance',
+              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          address: Contracts.FraxToken,
+          args: [address, Contracts.FraxPayCore],
+        },
+      ],
+    });
+
+    console.log(results);
+
+    setFraxBalance(results[0].result.toString());
+    setFraxAllowance(results[1].result.toString());
+  }, [address, publicClient]);
+
+  useEffect(() => {
+    fetchUserState();
+  }, [fetchUserState]);
+
+  const { config: erc20PaymentConfig } = usePrepareContractWrite({
+    address: Contracts.FraxPayCore,
+    abi: [
+      {
+        inputs: [
+          { internalType: 'address', name: 'recipient', type: 'address' },
+          { internalType: 'address', name: 'tokenAddress', type: 'address' },
+          { internalType: 'uint256', name: 'amount', type: 'uint256' },
+          { internalType: 'string', name: 'identifier', type: 'string' },
+        ],
+        name: 'erc20Payment',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ],
+    functionName: 'mint',
+    args: [
+      address,
+      Contracts.FraxToken,
+      60n * 10n ** 18n, // amount
+      orderID,
+    ],
+  });
+  const { write: erc20Payment } = useContractWrite(erc20PaymentConfig);
 
   return (
     <div className="h-full bg-zinc-950">

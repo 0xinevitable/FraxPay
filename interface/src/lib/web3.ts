@@ -30,3 +30,5 @@ export const wagmiConfig = createConfig({
   publicClient,
   webSocketPublicClient,
 });
+
+export { publicClient };
