@@ -205,7 +205,7 @@ const PayPage: NextPage = () => {
 
     let orderID: string | null = cachedOrderID;
     if (!orderID) {
-      const { data } = await axios.post('/pay/prepare', {
+      const { data } = await axios.post('/api/pay/prepare', {
         productID,
         shippingInfo,
       });

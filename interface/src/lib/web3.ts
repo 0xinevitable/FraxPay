@@ -1,3 +1,4 @@
+import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { configureChains, createConfig } from 'wagmi';
 import {
   arbitrum,
@@ -13,7 +14,12 @@ import { publicProvider } from 'wagmi/providers/public';
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   // [arbitrum, arbitrumGoerli, optimism, optimismGoerli],
   [optimism],
-  [publicProvider()],
+  [
+    alchemyProvider({
+      apiKey: process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL as string,
+    }),
+    publicProvider(),
+  ],
 );
 
 export const wagmiConnectors = {

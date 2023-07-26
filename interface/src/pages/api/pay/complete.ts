@@ -11,8 +11,9 @@ const redis = new Redis({
   token: process.env.UPSTASH_TOKEN as string,
 });
 
-// FIXME:
-const provider = new JsonRpcProvider('');
+const provider = new JsonRpcProvider(
+  `https://opt-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL}`,
+);
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
@@ -26,6 +27,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const orderID = req.body.orderID;
   const key = `payment:${productID}:order:${orderID}`;
   const doc = await redis.get(key);
+  console.log({ doc });
+
   if (!doc) {
     res.status(404).json({ success: false, message: 'Not found' });
     return;
@@ -50,7 +53,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // 들어온 tx hash로 쿼리, ethers 통해 이벤트 가져온 뒤에 해당 이벤트의 order id가 위의 order id와 같은지 확인
 
   const txHash = req.body.txHash;
-  const receipt = await provider.getTransactionReceipt(txHash);
+  let receipt = await provider.getTransactionReceipt(txHash);
+  if (!receipt) {
+    // wait 3 seconds
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    receipt = await provider.getTransactionReceipt(txHash);
+  }
   if (!receipt) {
     res.status(400).json({
       success: false,
@@ -81,7 +89,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
-  if (event.args.orderID !== order.id) {
+  if (event.args[3] !== order.id) {
     res
       .status(400)
       .json({ success: false, message: 'Invalid tx hash; Order ID mismatch' });
