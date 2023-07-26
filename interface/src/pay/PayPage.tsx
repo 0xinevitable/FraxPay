@@ -643,12 +643,14 @@ const PayPage: NextPage = () => {
 
                   <Separator className="my-8" />
 
-                  <button
-                    className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300"
-                    onClick={onClickPay}
-                  >
-                    Pay
-                  </button>
+                  <div className="px-5">
+                    <button
+                      className="w-full py-3 mt-4 font-bold transition-colors bg-slate-100 rounded-xl text-zinc-800 hover:bg-slate-300"
+                      onClick={onClickPay}
+                    >
+                      Pay
+                    </button>
+                  </div>
                 </div>
               </>
             )}

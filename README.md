@@ -15,6 +15,7 @@
 ![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/connect-wallet.png)
 ![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png)
 ![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png)
+![](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/done.png)
 
 ## 🔴 Deployments
 
