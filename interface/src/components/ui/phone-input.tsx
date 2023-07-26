@@ -30,7 +30,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       if (
         phoneNumberInputDivRef.current &&
         !phoneNumberInputDivRef.current.contains(event.target as any) &&
-        open
+        isPhoneNumberSelectOpen
       ) {
         setPhoneNumberSelectOpen((prev) => !prev);
         setQuery('');
@@ -41,7 +41,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [phoneNumberInputDivRef]);
+  }, [isPhoneNumberSelectOpen, phoneNumberInputDivRef]);
 
   return (
     <div className="flex flex-col flex-1 gap-1">
