@@ -2,19 +2,17 @@
 import { optimism } from '@wagmi/chains';
 import axios from 'axios';
 import clsx from 'clsx';
-import { ChevronsRight, Chrome, CircleDashed, Loader2 } from 'lucide-react';
+import {
+  CheckCircle2,
+  ChevronsRight,
+  CircleDashed,
+  Loader2,
+} from 'lucide-react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  useAccount,
-  useConnect,
-  useContractWrite,
-  useDisconnect,
-  usePrepareContractWrite,
-  usePublicClient,
-} from 'wagmi';
+import { useAccount, useConnect, useDisconnect, usePublicClient } from 'wagmi';
 import { useWalletClient } from 'wagmi';
 
 import { ConnectButton } from '@/components/ConnectButton';
@@ -27,9 +25,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import CountrySelector, {
-  SelectMenuOption,
-} from '@/components/ui/country-input';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Button } from '@/components/ui/button';
+import CountrySelector from '@/components/ui/country-input';
 import { Input, InputWithLabel } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -62,6 +60,7 @@ const MetaMaskAvatar = dynamic(
 enum Stage {
   SHIPPING_INFO_AND_CONNECT,
   CONFIRM_PAYMENT,
+  SUCCESS,
 }
 
 const HAS_INSUFFICIENT_FUNDS = false;
@@ -250,6 +249,8 @@ const PayPage: NextPage = () => {
       txHash: hash,
     });
     console.log(data);
+
+    setStage(Stage.SUCCESS);
   }, [
     address,
     cachedOrderID,
@@ -650,6 +651,46 @@ const PayPage: NextPage = () => {
                   </button>
                 </div>
               </>
+            )}
+
+            {stage === Stage.SUCCESS && (
+              <div className="flex flex-col items-center justify-center w-full h-full px-6 py-16">
+                <CheckCircle2 className="text-4xl text-slate-300" size={64} />
+                <h2 className="mt-4 text-3xl font-medium leading-snug text-center text-slate-200">
+                  Done!
+                </h2>
+                <p className="text-xl leading-snug tracking-tight text-center text-slate-400">
+                  Your order has been completed.
+                </p>
+                <div className="flex items-center justify-center w-full gap-2 p-3 mt-3 bg-zinc-950 rounded-xl">
+                  <span className="h-[42px] inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom w-fit">
+                    <div className="w-8 h-8 border-2 rounded-full border-slate-500/20">
+                      <img
+                        src="/assets/optimism.png"
+                        alt="Optimism"
+                        className="w-full h-full"
+                      />
+                    </div>
+                    <span className="text-slate-200">Optimism</span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 py-2 pl-1.5 pr-3 leading-none border shadow-lg text-2xl bg-zinc-800 rounded-3xl border-zinc-600/50 shadow-zinc-950 align-bottom w-fit">
+                    <div className="inline-flex items-center justify-center w-8 h-8 -my-3 align-middle border-2 rounded-full border-slate-500/20">
+                      <MetaMaskAvatar address={address || ''} size={28} />
+                    </div>
+                    <span className="text-slate-200">
+                      {address?.slice(0, 6)}
+                    </span>
+                  </span>
+                </div>
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    setStage(Stage.SHIPPING_INFO_AND_CONNECT);
+                  }}
+                >
+                  Place another
+                </Button>
+              </div>
             )}
           </NoSSR>
         </div>
