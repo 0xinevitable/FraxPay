@@ -16,7 +16,7 @@ export interface CountrySelectorProps {
   disabled?: boolean;
   onToggle: () => void;
   onChange: (value: SelectMenuOption['value']) => void;
-  selectedValue: SelectMenuOption;
+  selectedValue?: SelectMenuOption;
 }
 
 export default function CountrySelector({
@@ -33,10 +33,10 @@ export default function CountrySelector({
   useEffect(() => {
     const mutableRef = ref as MutableRefObject<HTMLDivElement | null>;
 
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         mutableRef.current &&
-        !mutableRef.current.contains(event.target) &&
+        !mutableRef.current.contains(event.target as any) &&
         open
       ) {
         onToggle();
@@ -67,12 +67,12 @@ export default function CountrySelector({
       >
         <span className="flex items-center truncate">
           <img
-            alt={`${selectedValue.value}`}
-            src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${selectedValue.value}.svg`}
+            alt={`${selectedValue?.value}`}
+            src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${selectedValue?.value}.svg`}
             className={'inline mr-2 h-4 rounded-sm'}
           />
           <span className="font-normal truncate text-zinc-300">
-            {selectedValue.title}
+            {selectedValue?.title}
           </span>
         </span>
         <span
@@ -143,7 +143,7 @@ export default function CountrySelector({
                       key={`${id}-${index}`}
                       className={cn(
                         'relative flex items-center px-3 py-2 transition cursor-default select-none text-zinc-900 hover:bg-zinc-700',
-                        value.value === selectedValue.value && 'bg-zinc-700',
+                        value.value === selectedValue?.value && 'bg-zinc-700',
                       )}
                       id="listbox-option-0"
                       // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
@@ -165,7 +165,7 @@ export default function CountrySelector({
                       <span className="font-normal truncate text-zinc-300">
                         {value.title}
                       </span>
-                      {value.value === selectedValue.value ? (
+                      {value.value === selectedValue?.value ? (
                         <span className="flex items-center ml-auto text-zinc-200">
                           <Check size={20} strokeWidth={3} />
                         </span>

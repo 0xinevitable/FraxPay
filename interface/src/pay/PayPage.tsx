@@ -37,7 +37,7 @@ import { Contracts } from '@/constants/contracts';
 import { COUNTRIES } from '@/constants/countries';
 import { cn } from '@/lib/utils';
 import { wagmiConnectors } from '@/lib/web3';
-import { Product } from '@/types/product';
+import { Product, ShippingInformationFormID } from '@/types/product';
 
 const MetaMaskAvatar = dynamic(
   () => import('react-metamask-avatar').then((module) => module.MetaMaskAvatar),
@@ -62,11 +62,7 @@ const PayPage: NextPage = () => {
   const productID = router.query.productID as string;
   const [orderID, setOrderID] = useState<string>('');
 
-  const [isOpen, setIsOpen] = useState(false);
-  // Default this to a country's code to preselect it
-  const [country, setCountry] = useState<SelectMenuOption['value']>('BE');
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
-
+  const [isCountryInputOpen, setIsCountryInputOpen] = useState(false);
   const [stage, setStage] = useState<Stage>(Stage.SHIPPING_INFO_AND_CONNECT);
 
   useEffect(() => {
@@ -90,56 +86,98 @@ const PayPage: NextPage = () => {
     fetch();
   }, [router, productID]);
 
+  const [shippingInfo, setShippingInfo] = useState<
+    Record<ShippingInformationFormID | 'zip' | 'city' | 'country', string>
+  >({
+    name: '',
+    email: '',
+    city: '',
+    country: 'GB',
+    address: '',
+    zip: '',
+    phone: '',
+  });
+  console.log(shippingInfo);
+
+  const generateShippingInfoFormItemProps = useCallback(
+    (id: ShippingInformationFormID | 'zip' | 'city' | 'country') => ({
+      id: id,
+      required: ['zip', 'city', 'country'].includes(id)
+        ? product?.shipping.address.required
+        : product?.shipping?.[id as ShippingInformationFormID]?.required ||
+          false,
+      disabled: !(['zip', 'city', 'country'].includes(id)
+        ? product?.shipping.address.enabled
+        : product?.shipping?.[id as ShippingInformationFormID]?.enabled ||
+          true),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        setShippingInfo((prev) => ({
+          ...prev,
+          [id]: e.target.value,
+        }));
+      },
+    }),
+    [product],
+  );
+
   const [fraxBalance, setFraxBalance] = useState<string | null>(null);
   const [fraxAllowance, setFraxAllowance] = useState<string | null>(null);
   const fetchUserState = useCallback(async () => {
     if (!address) {
       return;
     }
-    const results = await publicClient.multicall({
-      contracts: [
-        {
-          functionName: 'balanceOf',
-          abi: [
-            {
-              constant: true,
-              inputs: [
-                { internalType: 'address', name: 'owner', type: 'address' },
-              ],
-              name: 'balanceOf',
-              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-              payable: false,
-              stateMutability: 'view',
-              type: 'function',
-            },
-          ],
-          address: Contracts.FraxToken,
-          args: [address],
-        },
-        {
-          functionName: 'allowance',
-          abi: [
-            {
-              inputs: [
-                { internalType: 'address', name: 'owner', type: 'address' },
-                { internalType: 'address', name: 'spender', type: 'address' },
-              ],
-              name: 'allowance',
-              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-              stateMutability: 'view',
-              type: 'function',
-            },
-          ],
-          address: Contracts.FraxToken,
-          args: [address, Contracts.FraxPayCore],
-        },
-      ],
-    });
+    try {
+      const results = await publicClient.multicall({
+        contracts: [
+          {
+            functionName: 'balanceOf',
+            abi: [
+              {
+                constant: true,
+                inputs: [
+                  { internalType: 'address', name: 'owner', type: 'address' },
+                ],
+                name: 'balanceOf',
+                outputs: [
+                  { internalType: 'uint256', name: '', type: 'uint256' },
+                ],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ],
+            address: Contracts.FraxToken,
+            args: [address],
+          },
+          {
+            functionName: 'allowance',
+            abi: [
+              {
+                inputs: [
+                  { internalType: 'address', name: 'owner', type: 'address' },
+                  { internalType: 'address', name: 'spender', type: 'address' },
+                ],
+                name: 'allowance',
+                outputs: [
+                  { internalType: 'uint256', name: '', type: 'uint256' },
+                ],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ],
+            address: Contracts.FraxToken,
+            args: [address, Contracts.FraxPayCore],
+          },
+        ],
+      });
 
-    console.log(results);
+      console.log(results);
 
-    setFraxBalance(results[0].result?.toString() || '0');
-    setFraxAllowance(results[1].result?.toString() || '0');
+      setFraxBalance(results[0].result?.toString() || '0');
+      setFraxAllowance(results[1].result?.toString() || '0');
+    } catch (e) {
+      console.error(e);
+    }
   }, [address, publicClient]);
 
   useEffect(() => {
@@ -209,56 +247,84 @@ const PayPage: NextPage = () => {
                 </h2>
 
                 <div className="grid w-full grid-cols-2 gap-2">
-                  <InputWithLabel id="name" label="Name" required />
-                  <InputWithLabel
-                    id="email"
-                    type="email"
-                    label="Email"
-                    required
-                  />
-                </div>
-                <div className="grid w-full grid-cols-2 gap-2">
-                  <div className="flex-1">
-                    <InputWithLabel id="address" label="City" />
-                  </div>
-                  <div className="flex flex-col flex-1 gap-1">
-                    <Label className="mt-2 font-medium text-zinc-400">
-                      Country
-                    </Label>
-                    <CountrySelector
-                      className="w-full"
-                      id={'country-selector'}
-                      open={isOpen}
-                      onToggle={() => setIsOpen(!isOpen)}
-                      onChange={setCountry}
-                      selectedValue={
-                        COUNTRIES.find((option) => option.value === country)!
-                      }
+                  {product.shipping.name.enabled && (
+                    <InputWithLabel
+                      label="Name"
+                      {...generateShippingInfoFormItemProps('name')}
                     />
-                  </div>
+                  )}
+                  {product.shipping.email.enabled && (
+                    <InputWithLabel
+                      type="email"
+                      label="Email"
+                      {...generateShippingInfoFormItemProps('email')}
+                    />
+                  )}
                 </div>
+                {product.shipping.address.enabled && (
+                  <>
+                    <div className="grid w-full grid-cols-2 gap-2">
+                      <div className="flex-1">
+                        <InputWithLabel
+                          label="City"
+                          {...generateShippingInfoFormItemProps('city')}
+                        />
+                      </div>
+                      <div className="flex flex-col flex-1 gap-1">
+                        <Label className="mt-2 font-medium text-zinc-400">
+                          Country
+                          {product.shipping.address.required && (
+                            <span className="text-red-400"> *</span>
+                          )}
+                        </Label>
+                        <CountrySelector
+                          className="w-full"
+                          id={'country-selector'}
+                          open={isCountryInputOpen}
+                          onToggle={() =>
+                            setIsCountryInputOpen(!isCountryInputOpen)
+                          }
+                          onChange={(value) =>
+                            setShippingInfo((prev) => ({
+                              ...prev,
+                              country: value,
+                            }))
+                          }
+                          selectedValue={COUNTRIES.find(
+                            (option) => option.value === shippingInfo.country,
+                          )}
+                        />
+                      </div>
+                    </div>
 
-                <div className="flex flex-col flex-1 gap-1">
-                  <Label className="mt-2 font-medium text-zinc-400">
-                    Address
-                  </Label>
-                  <div className="z-0 flex flex-col">
-                    <Input
-                      id="address"
-                      placeholder="Street Address"
-                      className="rounded-b-none focus:z-10"
-                    />
-                    <Input
-                      id="zip"
-                      placeholder="ZIP/Postal Code"
-                      className="mt-[-1px] rounded-t-none focus:z-10"
-                    />
-                  </div>
-                </div>
+                    <div className="flex flex-col flex-1 gap-1">
+                      <Label className="mt-2 font-medium text-zinc-400">
+                        Address
+                        {product.shipping.address.required && (
+                          <span className="text-red-400"> *</span>
+                        )}
+                      </Label>
+                      <div className="z-0 flex flex-col">
+                        <Input
+                          placeholder="Street Address"
+                          className="rounded-b-none focus:z-10"
+                          {...generateShippingInfoFormItemProps('address')}
+                        />
+                        <Input
+                          placeholder="ZIP/Postal Code"
+                          className="mt-[-1px] rounded-t-none focus:z-10"
+                          {...generateShippingInfoFormItemProps('zip')}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <PhoneInput
-                  phoneNumber={phoneNumber}
-                  setPhoneNumber={setPhoneNumber}
+                  phoneNumber={shippingInfo.phone}
+                  setPhoneNumber={(value) =>
+                    setShippingInfo((prev) => ({ ...prev, phone: value }))
+                  }
                 />
 
                 {/* divider */}
