@@ -86,6 +86,7 @@ Additional details regarding the payment process include:
 ### FraxPay
 
 - Optimism(`FraxPayCore`): `0x986ec2aeE73E21B28b29A2E040DDFfd839F6F07d`
+- Optimism(`FraxPayPeriphery`): WIP
 
 ### Ecosystem
 
