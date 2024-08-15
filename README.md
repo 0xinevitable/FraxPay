@@ -8,7 +8,7 @@
 4. Frontend Widgets/SDK for FraxPay and Fraxswap
 
 **The primary goal of this project is to offer an open-source solution that can be used within the ecosystem. This means that even if it's not our front-end distribution or service, anyone who needs to integrate crypto payments into their product can easily do so using FraxPay's open-source code, facilitating payments with the FRAX Stablecoin.**
-The code is fully available on [GitHub](https://github.com/inevitable-dao/FraxPay) under the LGPL-3.0 license. Drop a star in our repo if you liked it!
+The code is fully available on [GitHub](https://github.com/0xinevitable/FraxPay) under the LGPL-3.0 license. Drop a star in our repo if you liked it!
 
 ## Contents
 
@@ -29,15 +29,15 @@ As a merchant, you'll need to log in with your wallet. We implemented web3 Auth 
 
 ### Screenshots
 
-![FraxPay - Landing](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/landing.png?v=2)
+![FraxPay - Landing](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/landing.png?v=2)
 
 > ^ Landing Page
 
-![FraxPay - Payment Link List](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/list.png?v=2)
+![FraxPay - Payment Link List](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/list.png?v=2)
 
 > ^ Payment Link List
 
-![FraxyPay- New Payment Link Form](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/create.png?v=2)
+![FraxyPay- New Payment Link Form](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/create.png?v=2)
 
 > ^ Creating a new Payment Link
 
@@ -57,27 +57,27 @@ Additional details regarding the payment process include:
 - **If users have insufficient balance compared to the product price, we render a _Top Up Frax_ view. This view enables users to swap other tokens for payment (by utilizing `FraxSwapRouterV2`), while ensuring the merchant still receives FRAX, or connect to multiple on-ramp services.**
 - In case of sufficient funds, users can simply pay via our smart contract by invoking `erc20Payment`(or `nativePayment`, but it's currently disabled — we accept only FRAX!) with the `productID` and pre-server-generated `orderID`. Payments to the merchant occur in real-time within the function, based on the verified amount in the backend.
 
-![FraxPay - Input Shipping Info](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-1.png?v=2)
+![FraxPay - Input Shipping Info](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/shipping-connect-1.png?v=2)
 
 > Input Shipping Information. _Supported values: Name, Email, Address(Country, City, Street Address and ZIP/Postal Code), Phone Number_
 
-![FraxPay - Connect Wallet(Example: Coinbase Wallet Provider)](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/shipping-connect-2.png?v=2)
+![FraxPay - Connect Wallet(Example: Coinbase Wallet Provider)](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/shipping-connect-2.png?v=2)
 
 > Connect Wallet (Example: Coinbase Wallet Provider)
 
-![FraxPay - Wallet Connected](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/connect-wallet.png?v=2)
+![FraxPay - Wallet Connected](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/connect-wallet.png?v=2)
 
 > Wallet Connected View: We display the same avatar as MetaMask for easy distinction, ensuring user safety. 😆
 
-![FraxPay - Insufficient Balance: Swap with `FraxSwapRouterV2`](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png?v=2)
+![FraxPay - Insufficient Balance: Swap with `FraxSwapRouterV2`](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/insufficient-amount-swap.png?v=2)
 
 > Insufficient Balance: Swap with `FraxSwapRouterV2`
 
-![FraxPay - Insufficient Balance: Onramp](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png?v=2)
+![FraxPay - Insufficient Balance: Onramp](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/insufficient-amount-onramp.png?v=2)
 
 > Insufficient Balance: Onramp. \_Options: [Stably](https://stably.io/) and [Transak](https://transak.com/).\_
 
-![FraxPay - Done](https://github.com/inevitable-dao/FraxPay/raw/main/.github/assets/done.png?v=2)
+![FraxPay - Done](https://github.com/0xinevitable/FraxPay/raw/main/.github/assets/done.png?v=2)
 
 > Done! 🎉
 

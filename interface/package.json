@@ -2,7 +2,7 @@
   "name": "interface",
   "version": "1.0.0",
   "private": true,
-  "repository": "https://github.com/inevitable-dao/FraxPay",
+  "repository": "https://github.com/0xinevitable/FraxPay",
   "author": "Junho Yeo <i@junho.io>",
   "license": "LGPL-3.0",
   "scripts": {
